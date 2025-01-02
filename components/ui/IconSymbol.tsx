@@ -8,7 +8,9 @@ import { OpaqueColorValue, StyleProp, ViewStyle } from 'react-native';
 // Add your SFSymbol to MaterialIcons mappings here.
 const MAPPING = {
   // See MaterialIcons here: https://icons.expo.fyi
-  // See SF Symbols in the SF Symbols app on Mac.
+  // See SF Symbols in the SF Symbols app on Mac
+
+  'settings': 'settings',
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
