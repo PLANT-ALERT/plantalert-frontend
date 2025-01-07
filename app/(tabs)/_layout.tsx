@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 // icons
 import Octicons from '@expo/vector-icons/Octicons';
 
@@ -22,7 +22,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.tabIconSelected,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
+
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
@@ -42,14 +42,14 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="settings" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
         }}
       />
         <Tabs.Screen
             name="add_senzor"
             options={{
                 title: 'Add Senzor',
-                tabBarIcon: ({ color }) => <Octicons name="diff-added" size={28} color={color} />,
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
             }}
         />
     </Tabs>

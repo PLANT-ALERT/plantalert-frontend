@@ -6,17 +6,15 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Switch,
     Image,
 } from 'react-native';
-
+import {Picker} from '@react-native-picker/picker';
 import {getColors} from "@/constants/Colors";
-
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
 import { User } from "@/types/user"
-import {setTheme, Theme, isDarkMode, getColorReverseIcon} from "@/utils/theme";
+import {isDarkMode} from "@/utils/theme";
+import {Collapsible} from "@/components/Collapsible";
+
+import {storeData, getData} from "@/hooks/setStorageData"
 
 let colors = getColors();
 
@@ -29,19 +27,9 @@ export default function Settings() {
             longitude: "55",
         },
     });
-    const [form, setForm] = useState({
-        darkMode: isDarkMode(),
-        emailNotifications: true,
-        pushNotifications: false,
-    });
 
-    useEffect(() => {
-        if (form.darkMode) {
-            setTheme(Theme.dark);
-        } else {
-            setTheme(Theme.light);
-        }
-    }, [form])
+    const [languageForm, setLanguageForm] = useState<string>("auto");
+    const [themeForm, setThemeForm] = useState<string>("auto");
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -51,6 +39,8 @@ export default function Settings() {
                         // handle onPress
                     }}>
                     <View style={styles.profileAvatarWrapper}>
+                        <Text>{languageForm}</Text>
+                        <Text>{themeForm}</Text>
                         {user?.image ? (<Image
                             alt="Profile picture"
                             source={{uri: user.image}}
@@ -68,39 +58,52 @@ export default function Settings() {
                     </View>
                 </TouchableOpacity>
             </View>
-
             <ScrollView>
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Preferences</Text>
 
-                    <TouchableOpacity
-                        onPress={() => {
+                    <Collapsible iconName="moon" text="Theme">
 
-                        }}
-                        style={styles.row}>
-                        <View style={styles.rowIcon}>
-                            <Entypo name="language" size={24} color={getColorReverseIcon()} />
-                        </View>
+                    <Picker
+                        selectedValue={themeForm}
+                        onValueChange={(itemValue, itemIndex) => {
+                            storeData({storeKey: "theme", value: themeForm}).then(() => {
+                                    getData({storeKey: "theme"}).then((r) => {
+                                        if (typeof r == "string") setThemeForm(r)
+                                    });
+                                }
+                            )
+                            setThemeForm(itemValue);
+                        }
+                        }
+                        itemStyle={{color: colors.text}}
+                    >
 
-                        <Text style={styles.rowLabel}>Language</Text>
+                        <Picker.Item label="Dark" value="dark"  />
+                        <Picker.Item label="Light" value="light" />
+                        <Picker.Item label="System" value="auto" />
+                    </Picker>
+                    </Collapsible>
+                    <Collapsible iconName="globe" text="Language">
+                        <Picker
+                            selectedValue={languageForm}
+                            onValueChange={(itemValue, itemIndex) => {
+                                storeData({storeKey: "language", value: languageForm}).then(() => {
+                                    getData({storeKey: "language"}).then((r) => {
+                                        if (typeof r == "string") setLanguageForm(r)
+                                    });
+                                });
+                                setLanguageForm(itemValue);
+                            }
+                            }
+                            itemStyle={{color: colors.text}}
+                        >
 
-                        <View style={styles.rowSpacer} />
-
-                    </TouchableOpacity>
-
-                    <View style={styles.row}>
-                        <View style={styles.rowIcon}>
-                            <MaterialIcons name="dark-mode" size={24} color={getColorReverseIcon()}  />
-                        </View>
-
-                        <Text style={styles.rowLabel}>Dark Mode</Text>
-
-                        <View style={styles.rowSpacer} />
-
-                        <Switch
-                            onValueChange={darkMode => setForm({ ...form, darkMode })}
-                            value={form.darkMode} />
-                    </View>
+                            <Picker.Item label="Czech" value="czech"  />
+                            <Picker.Item label="English" value="english" />
+                            <Picker.Item label="System" value="auto" />
+                        </Picker>
+                    </Collapsible>
                 </View>
             </ScrollView>
         </SafeAreaView>

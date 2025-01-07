@@ -1,10 +1,17 @@
+import {getData} from "@/hooks/setStorageData";
+
 export enum Theme {
     light = 'light',
     dark = 'dark',
 }
 
 export const getTheme = () : Theme => {
-    return Theme.dark;
+    getData({storeKey: "theme"}).then(data => {
+        if (data === "dark") {
+            return Theme.dark;
+        }
+    })
+    return Theme.light;
 }
 
 export const setTheme = (theme : Theme) => {
