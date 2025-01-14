@@ -11,7 +11,6 @@ import {
 import {Picker} from '@react-native-picker/picker';
 import {getColors} from "@/constants/Colors";
 import { User } from "@/types/user"
-import {isDarkMode} from "@/utils/theme";
 import {Collapsible} from "@/components/Collapsible";
 import {router} from "expo-router"
 

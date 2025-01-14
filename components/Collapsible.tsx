@@ -45,7 +45,7 @@ export function Collapsible({children, iconName, text}:{children: React.ReactNod
             name={iconName}
             size={18}
             weight="medium"
-            color={getColorReverseIcon()}
+            color={colors.icon}
         />
 
         <Text style={styles.rowLabel}>{text}</Text>

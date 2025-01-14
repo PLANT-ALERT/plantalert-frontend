@@ -1,4 +1,7 @@
 import {Line} from 'react-native-simple-line-chart';
+import {getColors} from "@/constants/Colors";
+
+let colors = getColors();
 
 enum Charts {
     AIR_HUMADITY = "air-humidity",
@@ -13,7 +16,8 @@ export const getChartData = (chartData: Charts | string) : Line[] | undefined =>
         let lines : Line[] = [
             {
                 data: generateDemoData(),
-                curve: "monotone"
+                curve: "monotone",
+                lineColor: colors.tint,
             },
         ];
         return lines;

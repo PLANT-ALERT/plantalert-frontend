@@ -72,14 +72,14 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                                 </View>
                                 <Text style={textStyles.title}>Advanced information</Text>
                                 <View style={styles.row}>
-                                    <IconSymbol name="drop" color="black" size={20}></IconSymbol>
+                                    <IconSymbol name="drop" size={20} color={colors.icon}></IconSymbol>
                                     <Text style={textStyles.subtitle}> Humadity over time</Text>
                                 </View>
                                     {chart && (
                                         <Chart key="chart" lines={chart} />
                                     )}
                                 <View style={styles.row}>
-                                    <IconSymbol name="thermometer" color="black" size={20}></IconSymbol>
+                                    <IconSymbol name="thermometer" size={20} color={colors.icon}></IconSymbol>
                                     <Text style={textStyles.subtitle}> Air tempature over time</Text>
                                 </View>
                                 {chart && (
@@ -87,14 +87,14 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                                 )}
 
                                 <View style={styles.row}>
-                                    <IconSymbol name="drop" color="black" size={20}></IconSymbol>
+                                    <IconSymbol name="drop" size={20} color={colors.icon}></IconSymbol>
                                     <Text style={textStyles.subtitle}> Air humadity over time</Text>
                                 </View>
                                 {chart && (
                                     <Chart key="chart" lines={chart} />
                                 )}
                                 <View style={styles.row}>
-                                    <IconSymbol name="lightbulb" color="black" size={20}></IconSymbol>
+                                    <IconSymbol name="lightbulb" size={20} color={colors.icon} />
                                     <Text style={textStyles.subtitle}> Light over time</Text>
                                 </View>
                                 {chart && (
