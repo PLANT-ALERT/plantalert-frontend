@@ -7,8 +7,8 @@ export default function HomeScreen() {
       <SafeAreaView style={{ flex: 1 }}>
           <ScrollView>
               <View style={styles.wrapper}>
-                  <Plant name="konvalinka" age={"10-9-2024"} progress={20} />
-                  <Plant name="skibidy" age={"29-9-2024"} progress={80} />
+                  <Plant name="Aconitum" age={"10-9-2024"} progress={20} />
+                  <Plant name="Akácie" age={"29-9-2024"} progress={80} />
               </View>
           </ScrollView>
       </SafeAreaView>

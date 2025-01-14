@@ -22,9 +22,9 @@ let colors = getColors();
 
 export default function Settings() {
     const [user, setUser] = useState<User>({
-        name: "tonda",
+        name: "Chcispat",
         home: {
-            name: "jirka mit domov",
+            name: "Můj domov",
             latitude: "55",
             longitude: "55",
         },

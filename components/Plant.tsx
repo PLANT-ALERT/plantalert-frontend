@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Modal, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    Modal,
+    TouchableWithoutFeedback,
+    TouchableOpacity,
+    SafeAreaView,
+    ScrollView
+} from 'react-native';
 import ProgressBar from "@/components/ProgressBar"
 import {getColors} from "@/constants/Colors";
+import textStyles from "@/constants/TextStyles"
+import InfoCard from "@/components/InfoCard";
+import Chart from "@/components/Chart";
+import {getChartData} from "@/hooks/getChartData";
+import {IconSymbol} from "@/components/ui/IconSymbol";
 
 let colors = getColors();
 
@@ -12,6 +27,8 @@ export default function PlantCard(props: {name: string, age: string, image?: str
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+
+    let chart = getChartData("demo")
 
     return (
         <>
@@ -45,7 +62,46 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                         <View style={styles.modalBackground} />
                     </TouchableWithoutFeedback>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Detailed Plant Information</Text>
+                        <ScrollView style={{maxHeight: "100%", maxWidth: "100%"}}>
+                            <View style={{gap: 10}}>
+                                <View style={styles.infoCardContainer}>
+                                    <InfoCard cardTitle="Air-Humadity" iconName="drop" value="30%" iconColor="green"/>
+                                    <InfoCard cardTitle="Soil-Humadity" iconName="drop" value="70%" iconColor="green"/>
+                                    <InfoCard cardTitle="Air-Tempature" iconName="thermometer" iconColor="green" value="20 °C"/>
+                                    <InfoCard cardTitle="Light" iconName="lightbulb" iconColor="green" value="500 lux"/>
+                                </View>
+                                <Text style={textStyles.title}>Advanced information</Text>
+                                <View style={styles.row}>
+                                    <IconSymbol name="drop" color="black" size={20}></IconSymbol>
+                                    <Text style={textStyles.subtitle}> Humadity over time</Text>
+                                </View>
+                                    {chart && (
+                                        <Chart key="chart" lines={chart} />
+                                    )}
+                                <View style={styles.row}>
+                                    <IconSymbol name="thermometer" color="black" size={20}></IconSymbol>
+                                    <Text style={textStyles.subtitle}> Air tempature over time</Text>
+                                </View>
+                                {chart && (
+                                    <Chart key="chart" lines={chart} />
+                                )}
+
+                                <View style={styles.row}>
+                                    <IconSymbol name="drop" color="black" size={20}></IconSymbol>
+                                    <Text style={textStyles.subtitle}> Air humadity over time</Text>
+                                </View>
+                                {chart && (
+                                    <Chart key="chart" lines={chart} />
+                                )}
+                                <View style={styles.row}>
+                                    <IconSymbol name="lightbulb" color="black" size={20}></IconSymbol>
+                                    <Text style={textStyles.subtitle}> Light over time</Text>
+                                </View>
+                                {chart && (
+                                    <Chart key="chart" lines={chart} />
+                                )}
+                            </View>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
@@ -81,6 +137,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+
     },
     modalBackground: {
         position: 'absolute',
@@ -89,22 +146,41 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
     },
     modalContent: {
-        width: '90%', // Nearly full-screen modal
-        height: '90%',
-        backgroundColor: '#fff',
+        maxHeight: "70%",
+        backgroundColor: colors.background,
         borderRadius: 12,
         padding: 20,
+        margin: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 10,
         elevation: 10,
     },
-    modalText: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#1f2937',
+    infoCardContainer: {
+        minWidth: "90%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        width: "100%",
     },
+    chartsContainer: {
+        flexShrink: 1,
+        flex: 1,
+        width: "100%",
+    },
+    infoCardRow: {
+        flexDirection: 'row',
+        // flex: 1,
+        width: '100%',
+        justifyContent: 'space-between',
+    },
+    row: {
+        display: "flex",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });
