@@ -9,73 +9,68 @@ import {
     TouchableWithoutFeedback,
     Keyboard, Modal
 } from "react-native";
-import * as Network from "expo-network";
-import {IconSymbol} from "@/components/ui/IconSymbol"; // Your custom component
 import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {Picker} from "@react-native-picker/picker";
-import {getData, storeData} from "@/hooks/setStorageData";
 import {Wifi} from "@/types/wifi";
-
+import {health, fetching, loginWifi} from "@/utils/fetching";
 let colors = getColors();
+import {FieldValues} from "react-hook-form";
 
-let debug = true;
+let debug = false;
 
 export default function AddSenzor() {
-    const [wifiModal, setWifiModal] = useState<boolean>(true);
-    const [wifiList, setWifiList] = useState<Array<Wifi>>([]);
-    const [wifiSSID, setWifiSSID] = useState<string | null>(null);
+    const [wifiModal, setWifiModal] = useState<boolean>(false);
+    const [wifiList, setWifiList] = useState<Array<Wifi>>();
+    const [wifiSSID, setWifiSSID] = useState<string | undefined>(undefined);
+    const [wifiConnected, setWifiConnected] = useState<boolean>(false);
     const [isConnectedToSensor, setIsConnectedToSensor] = useState(false);
     const {control, handleSubmit, formState: {errors}} = useForm();
 
-    const onSubmit = (data) => {
+    const onSubmit = ( data : FieldValues ) => {
         // Simulate form submission
         console.log('Submitted Data:', data);
 
-    };
+        let res = loginWifi("http://192.168.4.1/connect", data.ssid, data.password);
+
+        res.then((result) => {
+            if (result.status === 200) {
+                setWifiConnected(true)
+            }
+
+            if (result.status === 401) {
+                control._setErrors({password: {type: "validate", message: "Wrong password"}})
+            }
+        })
+
+    }
 
     const toggleModal = () => {
         setWifiModal(!wifiModal);
     }
 
     useEffect(() => {
+        let interval: NodeJS.Timeout;
+
         const checkConnection = async () => {
-
             try {
-                // Get network state
-                const networkState = await Network.getNetworkStateAsync();
-                const {type, isConnected, isInternetReachable} = networkState;
+                const isConnected = await health("http://192.168.4.1/health");
+                setIsConnectedToSensor(isConnected);
 
-                // Only proceed if connected to WiFi
-                if (type === "WIFI" && isConnected) {
-                    // Attempt to ping the ESP8266 endpoint (replace with your ESP's IP)
-                    const sensorEndpoint = "http://192.168.4.1/health"; // Example endpoint
-                    try {
-                        const response = await fetch(sensorEndpoint, {method: "GET"});
-                        if (response.status === 200) {
-                            setIsConnectedToSensor(true);
-                        } else {
-                            setIsConnectedToSensor(false);
-                        }
-                    } catch (err) {
-                        // Unable to reach the sensor
-                        setIsConnectedToSensor(false);
-                    }
-                } else {
-                    setIsConnectedToSensor(false);
+                if (isConnected) {
+                    const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
+                    setWifiList(wifiRes);
                 }
             } catch (error) {
                 console.error("Error checking network state:", error);
                 setIsConnectedToSensor(false);
-            } finally {
-
             }
+
         };
 
-        // Poll every 3 seconds to check the connection
-        const interval = setInterval(checkConnection, 3000);
+        interval = setInterval(checkConnection, 5000); // Adjust interval
 
-        // Cleanup interval on component unmount
+        // Clean up interval on unmount
         return () => clearInterval(interval);
     }, []);
 
@@ -85,35 +80,39 @@ export default function AddSenzor() {
                 <TouchableWithoutFeedback onPress={() => {
                     Keyboard.dismiss()
                 }}>
-
-
                     <View style={styles.container}>
-                        <Text style={styles.title}>Enter your home WIFI credentials</Text>
+                        <Text style={styles.title}>Enter your home WIFI credentials {wifiConnected}</Text>
                         <View style={{marginTop: 10}}></View>
                         <Controller
                             control={control}
-                            render={({field}) => (
-                                <TextInput
-                                    {...field}
-                                    onPress={toggleModal}
-                                    value={wifiSSID ?? ""}
-                                    style={styles.input}
-                                    placeholder="SSID"
-                                    editable={false}
-                                    placeholderTextColor={colors.text}
-                                />
-
+                            name="ssid"
+                            defaultValue={wifiSSID} // Set initial value for the Controller
+                            rules={{
+                                min: { value: 1, message: "Select SSID" },
+                            }}
+                            render={({ field }) => (
+                                <>
+                                    <TextInput
+                                        {...field}
+                                        value={field.value} // Bind the Controller's value
+                                        onPress={() => {
+                                            toggleModal();
+                                            field.onChange(wifiSSID); // Update the Controller's value
+                                        }}
+                                        style={styles.input}
+                                        placeholder="SSID"
+                                        editable={false} // Prevent manual input
+                                        placeholderTextColor={colors.text}
+                                    />
+                                </>
                             )}
-                            name="name"
-                            rules={{required: 'Select SSID'}}
-
                         />
-
-                        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+                        {/*@ts-ignore*/}
+                        {errors.ssid && <Text style={styles.errorText}>{errors.ssid.message}</Text>}
 
                         <Controller
                             control={control}
-                            render={({field}) => (
+                            render={({ field })  => (
                                 <TextInput
                                     {...field}
                                     style={styles.input}
@@ -122,15 +121,24 @@ export default function AddSenzor() {
                                 />
                             )}
                             name="password"
-                            rules={{required: 'You must enter password'}}
+                            rules={{min: {value: 1, message:'You must enter password'}}}
                         />
+                        {/*@ts-ignore*/}
                         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
                         {/* Submit Butonu */}
                         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
+                        {debug ? (<>
+                                <Text>health: {isConnectedToSensor ? "OK" : "BAD RESPONSE"}</Text>
+                                <Text>LIST: {wifiList ? wifiList.map((item) => (<Text> {item.ssid},</Text>)) : "nothin"}</Text>
 
+                            </>
 
+                        ) : null
+
+                        }
                     </View>
+
                 </TouchableWithoutFeedback>
 
                 <Modal
@@ -138,22 +146,25 @@ export default function AddSenzor() {
                     animationType="fade"
                     transparent={true}
                     onRequestClose={toggleModal}
-
                 >
-                    <View style={styles.modalBackground}>
-                        <TouchableWithoutFeedback style={styles.modalContainer} onPress={toggleModal}>
+                    <View style={styles.modalBackground} >
                             <View style={styles.modalContent}>
                                 <Text style={styles.title}>Choose your home wifi connection</Text>
                                 <Picker
-
+                                    selectedValue={wifiSSID}
+                                    onValueChange={(itemValue) => {
+                                            setWifiSSID(itemValue);
+                                        }
+                                    }
                                     itemStyle={{color: colors.text}}
                                 >
-                                    <Picker.Item label="Dark" value="dark"  />
-                                    <Picker.Item label="Light" value="light" />
-                                    <Picker.Item label="System" value="auto" />
+                                    {wifiList ? wifiList.map((wifi, index) => (
+                                        <Picker.Item key={index} label={`${wifi.security != 0 ? "🔒" : null} ${wifi.ssid} `} value={wifi.ssid}   />
+                                    )): null}
+
                                 </Picker>
+                                <Button title="enter" onPress={toggleModal} />
                             </View>
-                        </TouchableWithoutFeedback>
                     </View>
                 </Modal>
             </>
@@ -211,10 +222,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.background,
-        zIndex: 1,
     },
     modalBackground: {
-        zIndex: 0,
         position: 'absolute',
         width: '100%',
         height: '100%',
@@ -226,9 +235,8 @@ const styles = StyleSheet.create({
     modalContent: {
         backgroundColor: colors.background,
         borderRadius: 12,
-        padding: 20,
+        padding: 15,
         justifyContent: 'center',
-        alignItems: 'center',
         shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,

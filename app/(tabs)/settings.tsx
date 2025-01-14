@@ -13,6 +13,8 @@ import {getColors} from "@/constants/Colors";
 import { User } from "@/types/user"
 import {isDarkMode} from "@/utils/theme";
 import {Collapsible} from "@/components/Collapsible";
+import {router} from "expo-router"
+
 
 import {storeData, getData} from "@/hooks/setStorageData"
 
@@ -36,11 +38,9 @@ export default function Settings() {
             <View style={styles.profile}>
                 <TouchableOpacity
                     onPress={() => {
-                        // handle onPress
+                        router.push("/auth")
                     }}>
                     <View style={styles.profileAvatarWrapper}>
-                        <Text>{languageForm}</Text>
-                        <Text>{themeForm}</Text>
                         {user?.image ? (<Image
                             alt="Profile picture"
                             source={{uri: user.image}}

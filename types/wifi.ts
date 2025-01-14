@@ -1,4 +1,4 @@
 export interface Wifi {
-    name: string;
-    security: string;
+    ssid: string;
+    security: number;
 }
