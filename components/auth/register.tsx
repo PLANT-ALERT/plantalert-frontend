@@ -10,20 +10,26 @@ import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {FieldValues} from "react-hook-form";
 import {create_user} from "@/hooks/user";
+import {} from "@/hooks/tokenHandle"
 
 let colors = getColors();
 
-export default function Register() {
+export default function Register({onSwitch}: { onSwitch: () => void }) {
     const {control, handleSubmit, formState: {errors}} = useForm();
 
-    const onSubmit = (data: FieldValues) => {
+    const onSubmit = async (data: FieldValues) => {
         let formdata = {
             username: data.username,
             password: data.password,
             email: data.email,
         }
-        create_user(formdata)
+        const result = await create_user(formdata);
+
+        if (result.status == 200) {
+            onSwitch();
+        }
     }
+
     return (
         <>
             <View style={styles.container}>

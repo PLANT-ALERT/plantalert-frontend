@@ -9,27 +9,33 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import {User} from "@/types/user"
 import { getColors } from "@/constants/Colors";
-import { User } from "@/types/user";
 import { Collapsible } from "@/components/Collapsible";
 import { router } from "expo-router";
 
 import { storeData, getData } from "@/hooks/setStorageData";
+import {getToken} from "@/hooks/tokenHandle";
+import {get_user} from "@/hooks/user";
 
 let colors = getColors();
 
 export default function Settings() {
-  const [user, setUser] = useState<User>({
-    name: "Chcispat",
-    home: {
-      name: "Můj domov",
-      latitude: "55",
-      longitude: "55",
-    },
-  });
-
+  const [user, setUser] = useState<User | null>(null);
   const [languageForm, setLanguageForm] = useState<string>("auto");
   const [themeForm, setThemeForm] = useState<string>("auto");
+  const [token, setToken] = useState<string | null>();
+
+  useEffect(() => {
+    getToken().then((res) => {
+      setToken(res)
+    });
+
+    if (token)
+      get_user(token).then((res) => {
+        setUser(res)
+      })
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -38,25 +44,24 @@ export default function Settings() {
           onPress={() => {
             router.push("/auth");
           }}
-        >
+        >{token ?
           <View style={styles.profileAvatarWrapper}>
             {user?.image ? (
-              <Image
-                alt="Profile picture"
-                source={{ uri: user.image }}
-                style={styles.profileAvatar}
-              />
+                <Image
+                    alt="Profile picture"
+                    source={{uri: user.image}}
+                    style={styles.profileAvatar}
+                />
             ) : (
-              <Image
-                alt="Profile picture"
-                source={require("@/assets/images/blank.png")}
-                style={styles.profileAvatar}
-              />
+                <Image
+                    alt="Profile picture"
+                    source={require("@/assets/images/blank.png")}
+                    style={styles.profileAvatar}
+                />
             )}
 
-            <Text style={styles.profileName}>{user?.name}</Text>
-            <Text style={styles.profileAddress}>{user?.home.name}</Text>
-          </View>
+            <Text style={styles.profileName}>{user?.username}</Text>
+          </View> : <Text>Please login</Text>}
         </TouchableOpacity>
       </View>
       <ScrollView>

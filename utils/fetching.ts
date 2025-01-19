@@ -13,7 +13,6 @@ export const fetching = async <T>(address: string, post?: boolean): Promise<T> =
          // Parse response as JSON and cast to type T
         return await response.json();
     } catch (error) {
-        console.error("Fetching error:", error);
         throw error; // Re-throw the error for the caller to handle
     }
 };
@@ -27,12 +26,8 @@ export const health = async (address: string): Promise<boolean> => {
         if (response.status === 200) {
             return true;
         }
-
-        console.error((`HTTP error! status: ${response.status}`));
         return false;
-
     } catch (error) {
-        console.error("Fetching error:", error);
         return false;
     }
 };
@@ -62,7 +57,6 @@ export const loginWifi = async (address: string, ssid: string, password: string)
 
         return { status: 500 };
     } catch (error) {
-        console.error('Error:', error);
         return { status: 500, error: error };
 
     }

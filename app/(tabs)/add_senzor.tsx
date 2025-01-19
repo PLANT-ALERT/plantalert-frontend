@@ -50,17 +50,14 @@ export default function AddSenzor() {
     }
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let checkConnectionInterval: NodeJS.Timeout;
+        let checkWifiListInterval: NodeJS.Timeout;
 
         const checkConnection = async () => {
             try {
                 const isConnected = await health("http://192.168.4.1/health");
                 setIsConnectedToSensor(isConnected);
-
-                if (isConnected) {
-                    const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
-                    setWifiList(wifiRes);
-                }
+                updateWifiList();
             } catch (error) {
                 console.error("Error checking network state:", error);
                 setIsConnectedToSensor(false);
@@ -68,10 +65,24 @@ export default function AddSenzor() {
 
         };
 
-        interval = setInterval(checkConnection, 5000); // Adjust interval
+        const updateWifiList = async () => {
+            try {
+                const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
+                setWifiList(wifiRes);
+
+            } catch (err) {
+
+            }
+        }
+
+        checkConnectionInterval = setInterval(checkConnection, 2500); // Adjust interval
+        checkWifiListInterval = setInterval(updateWifiList, 20000);
 
         // Clean up interval on unmount
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(checkConnectionInterval);
+            clearInterval(checkWifiListInterval);
+        };
     }, []);
 
     if (isConnectedToSensor || debug) {
@@ -131,7 +142,6 @@ export default function AddSenzor() {
                         {debug ? (<>
                                 <Text>health: {isConnectedToSensor ? "OK" : "BAD RESPONSE"}</Text>
                                 <Text>LIST: {wifiList ? wifiList.map((item) => (<Text> {item.ssid},</Text>)) : "nothin"}</Text>
-
                             </>
 
                         ) : null
@@ -178,7 +188,7 @@ export default function AddSenzor() {
             <View style={styles.container}>
                 <ActivityIndicator size="large" color={colors.tabIconSelected}/>
                 <Text style={styles.title}>Checking connection...</Text>
-                <Text style={styles.subtitle}>Please connect to senzor wifi connection</Text>
+                <Text style={styles.subtitle}>Please connect to sensor wifi connection</Text>
             </View>
         );
 

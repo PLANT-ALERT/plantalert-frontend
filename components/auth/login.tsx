@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
+import {login} from "@/hooks/user";
+import {saveToken} from "@/hooks/tokenHandle"
 
 let colors = getColors();
 import {FieldValues} from "react-hook-form";
@@ -15,8 +17,16 @@ import {FieldValues} from "react-hook-form";
 export default function Login() {
     const {control, handleSubmit, formState: {errors}} = useForm();
 
-    const onSubmit = (data: FieldValues) => {
+    const onSubmit = async (data: FieldValues) => {
+        let response = await login(data.username, data.password);
 
+        if (response.status == 200) {
+            const jsondata: {user_id: number} = await response.json();
+
+            saveToken(jsondata.user_id.toString());
+
+
+        }
     }
 
     return (

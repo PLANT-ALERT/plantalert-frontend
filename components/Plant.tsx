@@ -7,7 +7,6 @@ import {
     Modal,
     TouchableWithoutFeedback,
     TouchableOpacity,
-    SafeAreaView,
     ScrollView
 } from 'react-native';
 import ProgressBar from "@/components/ProgressBar"

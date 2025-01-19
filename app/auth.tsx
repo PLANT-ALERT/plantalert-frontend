@@ -16,7 +16,7 @@ export default function Auth() {
             Keyboard.dismiss()
         }} >
             <View style={styles.container}>
-                {register ? <Register /> : <Login />}
+                {register ? <Register onSwitch={toggleRegister}/> : <Login />}
                 <View style={styles.switchContainer}>
                     <Text style={textStyles.subtitle}>I dont have an account </Text>
                     <Switch
