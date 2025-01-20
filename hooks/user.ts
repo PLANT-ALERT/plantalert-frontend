@@ -1,5 +1,23 @@
 import {User, Sensor} from "@/types/user";
 
+export const registerSensor = async (
+    MAC: string, token: string, name: string
+) => {
+    let response = await fetch('http://127.0.0.1:8000/sensors/' + Number(token), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({user_id: token, mac_address: MAC, name: name})
+    });
+
+    if (response.status == 200) {
+        return true;
+    }
+
+    return false;
+};
+
 export const get_user = async (
     token: string
 ) => {

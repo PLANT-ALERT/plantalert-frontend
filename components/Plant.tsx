@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -16,18 +16,31 @@ import InfoCard from "@/components/InfoCard";
 import Chart from "@/components/Chart";
 import {getChartData} from "@/hooks/getChartData";
 import {IconSymbol} from "@/components/ui/IconSymbol";
+import {fetchLastSensor} from "@/hooks/sensor";
+
+import {Sensor_Response} from "@/hooks/sensor";
 
 let colors = getColors();
 
-export default function PlantCard(props: {name: string, age: string, image?: string, progress: number}) {
-    const {name, age, image, progress} = props;
+export default function PlantCard(props: {name: string, age: string, image?: string, progress: number, mac: string}) {
+    const {name, age, image, progress, mac} = props;
     const [isModalVisible, setModalVisible] = useState(false);
+    const [sensor, setSensor] = useState<Sensor_Response>();
+
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
 
     let chart = getChartData("demo")
+
+    useEffect(() => {
+        fetchLastSensor(mac).then((sensor) => {
+            if (sensor) {
+                setSensor(sensor);
+            }
+        })
+    }, [])
 
     return (
         <>
@@ -64,10 +77,10 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                         <ScrollView style={{maxHeight: "100%", maxWidth: "100%"}}>
                             <View style={{gap: 10}}>
                                 <View style={styles.infoCardContainer}>
-                                    <InfoCard cardTitle="Air-Humadity" iconName="drop" value="30%" iconColor="green"/>
-                                    <InfoCard cardTitle="Soil-Humadity" iconName="drop" value="70%" iconColor="green"/>
-                                    <InfoCard cardTitle="Air-Tempature" iconName="thermometer" iconColor="green" value="20 °C"/>
-                                    <InfoCard cardTitle="Light" iconName="lightbulb" iconColor="green" value="500 lux"/>
+                                    <InfoCard cardTitle="Air-Humadity" iconName="drop" value={`${sensor?.humidity} %`} iconColor="green"/>
+                                    <InfoCard cardTitle="Soil-Humadity" iconName="drop" value={`${sensor?.soil} %`} iconColor="green"/>
+                                    <InfoCard cardTitle="Air-Tempature" iconName="thermometer" iconColor="green" value={`${sensor?.temp} `}/>
+                                    <InfoCard cardTitle="Light" iconName="lightbulb" iconColor="green" value={`${sensor?.light} lux`}/>
                                 </View>
                                 <Text style={textStyles.title}>Advanced information</Text>
                                 <View style={styles.row}>

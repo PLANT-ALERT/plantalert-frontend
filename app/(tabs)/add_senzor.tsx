@@ -17,6 +17,8 @@ import {health, fetching, loginWifi} from "@/utils/fetching";
 let colors = getColors();
 import {FieldValues} from "react-hook-form";
 
+import {registerSensor} from "@/hooks/user";
+
 let debug = false;
 
 export default function AddSenzor() {
@@ -41,8 +43,9 @@ export default function AddSenzor() {
             if (result.status === 401) {
                 control._setErrors({password: {type: "validate", message: "Wrong password"}})
             }
-        })
 
+            registerSensor();
+        })
     }
 
     const toggleModal = () => {
@@ -69,7 +72,6 @@ export default function AddSenzor() {
             try {
                 const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
                 setWifiList(wifiRes);
-
             } catch (err) {
 
             }
@@ -136,6 +138,22 @@ export default function AddSenzor() {
                         />
                         {/*@ts-ignore*/}
                         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+
+                        <Controller
+                            control={control}
+                            render={({ field })  => (
+                                <TextInput
+                                    {...field}
+                                    style={styles.input}
+                                    placeholder="Sensor name"
+                                    placeholderTextColor={colors.text}
+                                />
+                            )}
+                            name="name"
+                            rules={{min: {value: 1, message:'You must enter name'}}}
+                        />
+                        {/*@ts-ignore*/}
+                        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
                         {/* Submit Butonu */}
                         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>

@@ -21,11 +21,10 @@ export default function HomeScreen() {
       <SafeAreaView style={{ flex: 1 }}>
           <ScrollView>
               <View style={styles.wrapper}>
-                  <Plant name="Aconitum" age={"10-9-2024"} progress={20} />
-                  <Plant name="Akácie" age={"29-9-2024"} progress={80} />
+
 
                   {sensors?.map((sensor) => (
-                      <Plant name={sensor.name} progress={15} age={sensor.created_at.toString()}/>
+                      <Plant name={sensor.name} mac={sensor.mac_address} progress={15} age={sensor.created_at.getDay() + "-" + sensor.created_at.getDate() + "-" + sensor.created_at.getFullYear()}/>
                   ))}
               </View>
           </ScrollView>
