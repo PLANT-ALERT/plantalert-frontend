@@ -10,6 +10,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { getColors } from "@/constants/Colors";
 import { getColorReverseIcon } from "@/utils/theme";
 import { SFSymbols5_0 } from "sf-symbols-typescript";
+import {themesTypes, useTheme} from "@/components/ThemeProvider";
 
 let colors = getColors();
 
@@ -23,9 +24,10 @@ export function Collapsible({
   text: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { theme } = useTheme();
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const heightAnim = useRef(new Animated.Value(0)).current;
+  const styles = returnStyles(theme)
 
   const toggleDrawer = () => {
     Animated.parallel([
@@ -62,7 +64,6 @@ export function Collapsible({
               name={iconName}
               size={18}
               weight="medium"
-              color={colors.icon}
           />
         </View>
 
@@ -97,43 +98,51 @@ export function Collapsible({
   );
 }
 
-const styles = StyleSheet.create({
-  heading: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    height: 50,
-    gap: 10,
-    backgroundColor: colors.background,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-  },
-  drawer: {
-    width: "100%",
-    overflow: "hidden",
-    borderRadius: 8,
-    backgroundColor: colors.background,
-    flexDirection: "column",
-    gap: 5,
-    marginTop: 10,
-  },
-  rowLabel: {
-    fontSize: 17,
-    fontWeight: "400",
-    color: colors.text,
-  },
-  rowSpacer: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-  },
-  rowIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 9999,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function returnStyles(theme: themesTypes) {
+  return StyleSheet.create({
+    heading: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      height: 50,
+      gap: 10,
+      backgroundColor: theme.card,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      borderWidth: 2,
+      borderColor: theme.border,
+    },
+    drawer: {
+      width: "100%",
+      overflow: "hidden",
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: theme.border,
+      backgroundColor: theme.card,
+      flexDirection: "column",
+      gap: 5,
+      marginTop: 10,
+    },
+    rowLabel: {
+      fontSize: 17,
+      fontWeight: "400",
+      color: theme.text,
+    },
+    rowSpacer: {
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: 0,
+    },
+    rowIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 9999,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  });
+
+}
+

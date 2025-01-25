@@ -2,12 +2,12 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 
 
-const ProgressBar = ({progress = 0, max = 100}) => {
+const ProgressBar = ({progress = 0, max = 100, color = ""}) => {
     const progressWidth = Math.max(0, Math.min(progress / max, 1)) * 100;
 
     return (
         <View style={styles.container}>
-            <View style={styles.barBackground}>
+            <View style={[styles.barBackground, {backgroundColor: color}]}>
                 <View style={[styles.barForeground, {width: `${progressWidth}%`}]}>
 
                 </View>

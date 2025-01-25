@@ -7,7 +7,7 @@ export enum Theme {
 
 export const getTheme = () : Theme => {
     getData({storeKey: "theme"}).then(data => {
-        if (data === "dark") {
+        if (data == "dark") {
             return Theme.dark;
         }
     })

@@ -19,6 +19,7 @@ import {IconSymbol} from "@/components/ui/IconSymbol";
 import {fetchLastSensor} from "@/hooks/sensor";
 import {translateToPercentage} from "@/utils/translator"
 import {Sensor_Response} from "@/hooks/sensor";
+import {useTheme, themesTypes} from "./ThemeProvider"
 
 let colors = getColors();
 
@@ -26,7 +27,8 @@ export default function PlantCard(props: {name: string, age: string, image?: str
     const {name, age, image, mac} = props;
     const [isModalVisible, setModalVisible] = useState(false);
     const [sensor, setSensor] = useState<Sensor_Response>();
-
+    let {theme} = useTheme();
+    let styles = returnStyles(theme)
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -71,11 +73,11 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                         alt="Plant Icon"
                     />
                     <View style={{ display: "flex", flexDirection: "column" }}>
-                        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text }}>{name}</Text>
-                        <Text style={{ fontSize: 17, fontWeight: '500', color: colors.subtitle, fontStyle: 'italic'}}>Zasazeno: {age}</Text>
+                        <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{name}</Text>
+                        <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age}</Text>
                     </View>
                 </View>
-                <ProgressBar progress={translateToPercentage(Number(sensor?.soil))} max={100} />
+                <ProgressBar color={"white"} progress={translateToPercentage(Number(sensor?.soil))} max={100} />
             </TouchableOpacity>
 
             {/* Modal */}
@@ -137,78 +139,82 @@ export default function PlantCard(props: {name: string, age: string, image?: str
     );
 }
 
-const styles = StyleSheet.create({
-    wrapper: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    card: {
-        flexDirection: 'column',
-        padding: 10,
-        borderRadius: 12,
-        backgroundColor: colors.background,
-        borderWidth: 1,
-        borderColor: colors.border,
-        shadowColor: colors.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 5,
-    },
-    image: {
-        width: 80, // Fixed width for the image
-        height: 80, // Fixed height for the image
-        resizeMode: 'contain', // Properly scale the image
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+function returnStyles(theme: themesTypes) {
+    return StyleSheet.create({
+        wrapper: {
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+        },
+        card: {
+            flexDirection: 'column',
+            padding: 10,
+            borderRadius: 12,
+            backgroundColor: theme.background,
+            borderWidth: 2,
+            borderColor: theme.border,
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 6,
+            elevation: 5,
+        },
+        image: {
+            width: 80, // Fixed width for the image
+            height: 80, // Fixed height for the image
+            resizeMode: 'contain', // Properly scale the image
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
 
-    },
-    modalBackground: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    },
-    modalContent: {
-        maxHeight: "70%",
-        backgroundColor: colors.background,
-        borderRadius: 12,
-        padding: 20,
-        margin: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: colors.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        elevation: 10,
-    },
-    infoCardContainer: {
-        minWidth: "90%",
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-        width: "100%",
-    },
-    chartsContainer: {
-        flexShrink: 1,
-        flex: 1,
-        width: "100%",
-    },
-    infoCardRow: {
-        flexDirection: 'row',
-        // flex: 1,
-        width: '100%',
-        justifyContent: 'space-between',
-    },
-    row: {
-        display: "flex",
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-});
+        },
+        modalBackground: {
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+        },
+        modalContent: {
+            maxHeight: "70%",
+            backgroundColor: theme.background,
+            borderRadius: 12,
+            padding: 20,
+            margin: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 10,
+            elevation: 10,
+        },
+        infoCardContainer: {
+            minWidth: "90%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            width: "100%",
+        },
+        chartsContainer: {
+            flexShrink: 1,
+            flex: 1,
+            width: "100%",
+        },
+        infoCardRow: {
+            flexDirection: 'row',
+            // flex: 1,
+            width: '100%',
+            justifyContent: 'space-between',
+        },
+        row: {
+            display: "flex",
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+        }
+    });
+
+}
+

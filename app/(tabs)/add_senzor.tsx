@@ -21,6 +21,7 @@ import {registerSensor} from "@/hooks/user";
 import {getToken} from "@/hooks/tokenHandle";
 import {IconSymbol} from "@/components/ui/IconSymbol";
 import {useFocusEffect} from "@react-navigation/native";
+import {themesTypes, useTheme} from "@/components/ThemeProvider";
 
 export default function AddSenzor() {
     const [wifiModal, setWifiModal] = useState<boolean>(false);
@@ -33,6 +34,10 @@ export default function AddSenzor() {
     const [checkConnectionInterval, setCheckConnectionInterval] = useState<NodeJS.Timeout | null>(null);
     const [checkWifiListInterval, setCheckWifiListInterval] = useState<NodeJS.Timeout | null>(null);
     const [token, setToken] = useState<string>();
+
+    let {theme} = useTheme();
+
+    let styles = returnStyle(theme);
 
     const onSubmit = ( data : FieldValues ) => {
         // Simulate form submission
@@ -244,63 +249,67 @@ export default function AddSenzor() {
 
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginTop: 20,
-        color: colors.text,
-    },
-    subtitle: {
-        fontSize: 18,
-        textAlign: "center",
-        marginTop: 10,
-        color: colors.subtitle,
-    },
-    input: {
-        height: 50,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
-        borderRadius: 8,
-        marginBottom: 12,
-        paddingHorizontal: 12,
-        width: "100%",
-    },
-    errorText: {
-        color: 'red',
-        marginBottom: 10,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.background,
-    },
-    modalBackground: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalContent: {
-        backgroundColor: colors.background,
-        borderRadius: 12,
-        padding: 15,
-        justifyContent: 'center',
-        shadowColor: colors.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        elevation: 10,
-    }
-});
+function returnStyle(theme : themesTypes) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+        },
+        title: {
+            fontSize: 24,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginTop: 20,
+            color: theme.text,
+        },
+        subtitle: {
+            fontSize: 18,
+            textAlign: "center",
+            marginTop: 10,
+            color: theme.subtitle,
+        },
+        input: {
+            height: 50,
+            borderColor: theme.border,
+            backgroundColor: theme.background,
+            borderRadius: 8,
+            marginBottom: 12,
+            paddingHorizontal: 12,
+            width: "100%",
+        },
+        errorText: {
+            color: 'red',
+            marginBottom: 10,
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: theme.background,
+        },
+        modalBackground: {
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        modalContent: {
+            backgroundColor: theme.background,
+            borderRadius: 12,
+            padding: 15,
+            justifyContent: 'center',
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 10,
+            elevation: 10,
+        }
+    });
+
+}
+

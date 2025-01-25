@@ -4,6 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SymbolWeight } from 'expo-symbols';
 import React from 'react';
 import { OpaqueColorValue } from 'react-native';
+import {useTheme} from "@/components/ThemeProvider"
 
 // Add your SFSymbol to MaterialIcons mappings here.
 const MAPPING = {
@@ -50,5 +51,7 @@ export function IconSymbol({
   color?: string | OpaqueColorValue;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color && colors.icon} size={size} name={MAPPING[name]} />;
+  let {theme} = useTheme();
+
+  return <MaterialIcons color={theme.icon} size={size} name={MAPPING[name]} />;
 }
