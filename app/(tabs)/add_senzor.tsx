@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
     View,
     Text,
@@ -16,10 +16,11 @@ import {Wifi} from "@/types/wifi";
 import {health, fetching, loginWifi} from "@/utils/fetching";
 let colors = getColors();
 import {FieldValues} from "react-hook-form";
-
+import { router } from "expo-router";
 import {registerSensor} from "@/hooks/user";
-
-let debug = false;
+import {getToken} from "@/hooks/tokenHandle";
+import {IconSymbol} from "@/components/ui/IconSymbol";
+import {useFocusEffect} from "@react-navigation/native";
 
 export default function AddSenzor() {
     const [wifiModal, setWifiModal] = useState<boolean>(false);
@@ -28,6 +29,10 @@ export default function AddSenzor() {
     const [wifiConnected, setWifiConnected] = useState<boolean>(false);
     const [isConnectedToSensor, setIsConnectedToSensor] = useState(false);
     const {control, handleSubmit, formState: {errors}} = useForm();
+    const [mac, setMac] = useState<string>();
+    const [checkConnectionInterval, setCheckConnectionInterval] = useState<NodeJS.Timeout | null>(null);
+    const [checkWifiListInterval, setCheckWifiListInterval] = useState<NodeJS.Timeout | null>(null);
+    const [token, setToken] = useState<string>();
 
     const onSubmit = ( data : FieldValues ) => {
         // Simulate form submission
@@ -44,7 +49,11 @@ export default function AddSenzor() {
                 control._setErrors({password: {type: "validate", message: "Wrong password"}})
             }
 
-            registerSensor();
+            if (mac) {
+                getToken().then(token => {
+                    if (token) registerSensor(mac, token, data.name)
+                })
+            }
         })
     }
 
@@ -52,49 +61,82 @@ export default function AddSenzor() {
         setWifiModal(!wifiModal);
     }
 
-    useEffect(() => {
-        let checkConnectionInterval: NodeJS.Timeout;
-        let checkWifiListInterval: NodeJS.Timeout;
 
-        const checkConnection = async () => {
-            try {
-                const isConnected = await health("http://192.168.4.1/health");
-                setIsConnectedToSensor(isConnected);
-                updateWifiList();
-            } catch (error) {
-                console.error("Error checking network state:", error);
-                setIsConnectedToSensor(false);
-            }
-
-        };
-
-        const updateWifiList = async () => {
-            try {
-                const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
-                setWifiList(wifiRes);
-            } catch (err) {
-
-            }
+    const checkConnection = async () => {
+        try {
+            checkToken();
+            const isConnected = await health("http://192.168.4.1/health");
+            setIsConnectedToSensor(isConnected);
+            fetching<string>("http://192.168.4.1/mac").then((result) => {
+                setMac(result);
+            })
+            updateWifiList();
+        } catch (error) {
+            setIsConnectedToSensor(false);
         }
+    };
 
-        checkConnectionInterval = setInterval(checkConnection, 2500); // Adjust interval
-        checkWifiListInterval = setInterval(updateWifiList, 20000);
+    const updateWifiList = async () => {
+        console.log("Checking list");
+        try {
+            const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
+            setWifiList(wifiRes);
+        } catch (err) {
+        }
+    };
 
-        // Clean up interval on unmount
+    const checkToken = () => {
+        getToken().then((result) => {
+            if (result) setToken(result);
+            console.log(result);
+        })
+    }
+
+
+    useEffect(() => {
+        const connectionInterval = setInterval(checkConnection, 2500);
+        const wifiListInterval = setInterval(updateWifiList, 20000);
+
+        // Uložíme intervaly do stavu
+        setCheckConnectionInterval(connectionInterval);
+        setCheckWifiListInterval(wifiListInterval);
+
         return () => {
-            clearInterval(checkConnectionInterval);
-            clearInterval(checkWifiListInterval);
-        };
-    }, []);
+            clearIntervals();
+        }
+    }, [token]);
 
-    if (isConnectedToSensor || debug) {
+    const clearIntervals = () => {
+        if (checkConnectionInterval) {
+            clearInterval(checkConnectionInterval);
+            setCheckConnectionInterval(null);
+        }
+        if (checkWifiListInterval) {
+            clearInterval(checkWifiListInterval);
+            setCheckWifiListInterval(null);
+        }
+    };
+
+
+    if (!token) {
+        return (
+            <TouchableWithoutFeedback onPress={()=> {router.push("/auth")}} >
+                <View style={styles.container}>
+                    <IconSymbol name="person" size={44} color={colors.tabIconSelected}/>
+                    <Text style={styles.title}>Please login before setting sensors</Text>
+                </View>
+            </TouchableWithoutFeedback>
+        )
+    }
+
+    if (isConnectedToSensor) {
         return (
             <>
                 <TouchableWithoutFeedback onPress={() => {
                     Keyboard.dismiss()
                 }}>
                     <View style={styles.container}>
-                        <Text style={styles.title}>Enter your home WIFI credentials {wifiConnected}</Text>
+                        <Text style={styles.title}>Enter your home WIFI credentials {isConnectedToSensor ? "true" : "false"}</Text>
                         <View style={{marginTop: 10}}></View>
                         <Controller
                             control={control}
@@ -104,8 +146,7 @@ export default function AddSenzor() {
                                 min: { value: 1, message: "Select SSID" },
                             }}
                             render={({ field }) => (
-                                <>
-                                    <TextInput
+                                <TextInput
                                         {...field}
                                         value={field.value} // Bind the Controller's value
                                         onPress={() => {
@@ -116,8 +157,7 @@ export default function AddSenzor() {
                                         placeholder="SSID"
                                         editable={false} // Prevent manual input
                                         placeholderTextColor={colors.text}
-                                    />
-                                </>
+                                />
                             )}
                         />
                         {/*@ts-ignore*/}
@@ -157,14 +197,6 @@ export default function AddSenzor() {
 
                         {/* Submit Butonu */}
                         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
-                        {debug ? (<>
-                                <Text>health: {isConnectedToSensor ? "OK" : "BAD RESPONSE"}</Text>
-                                <Text>LIST: {wifiList ? wifiList.map((item) => (<Text> {item.ssid},</Text>)) : "nothin"}</Text>
-                            </>
-
-                        ) : null
-
-                        }
                     </View>
 
                 </TouchableWithoutFeedback>
@@ -201,7 +233,7 @@ export default function AddSenzor() {
         );
     }
 
-    if (!debug)
+
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color={colors.tabIconSelected}/>

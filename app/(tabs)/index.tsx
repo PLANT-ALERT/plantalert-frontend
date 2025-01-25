@@ -6,25 +6,29 @@ import {StyleSheet, ScrollView, View, SafeAreaView} from "react-native";
 import {Sensor} from "@/types/user";
 import {getToken} from "@/hooks/tokenHandle";
 import {get_sensors} from "@/hooks/user"
+import {fetching, returnEndpoint} from "@/utils/fetching";
 
 export default function HomeScreen() {
-
+    const [token, setToken] = useState<string>();
     const [sensors, setSensors] = useState<Sensor[]>();
 
     useEffect(() => {
         getToken().then((res) => {
-            if (res) get_sensors(res).then((x => setSensors(x)));
+            if (res)
+            fetching<Sensor[]>(returnEndpoint("/sensors/?user_id=" + Number(res))).then((senlist) => {
+                if (senlist)
+                setSensors(senlist.body)
+            })
         })
+
     }, [])
 
   return (
       <SafeAreaView style={{ flex: 1 }}>
           <ScrollView>
               <View style={styles.wrapper}>
-
-
                   {sensors?.map((sensor) => (
-                      <Plant name={sensor.name} mac={sensor.mac_address} progress={15} age={sensor.created_at.getDay() + "-" + sensor.created_at.getDate() + "-" + sensor.created_at.getFullYear()}/>
+                      <Plant name={sensor.name} mac={sensor.mac_address} age={"21-1-2025"}/>
                   ))}
               </View>
           </ScrollView>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import {
   StyleSheet,
   SafeAreaView,
@@ -15,8 +15,11 @@ import { Collapsible } from "@/components/Collapsible";
 import { router } from "expo-router";
 
 import { storeData, getData } from "@/hooks/setStorageData";
-import {getToken} from "@/hooks/tokenHandle";
+import {deleteToken, getToken} from "@/hooks/tokenHandle";
 import {get_user} from "@/hooks/user";
+import {IconSymbol} from "@/components/ui/IconSymbol";
+
+import { useFocusEffect } from '@react-navigation/native';
 
 let colors = getColors();
 
@@ -24,90 +27,118 @@ export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
   const [languageForm, setLanguageForm] = useState<string>("auto");
   const [themeForm, setThemeForm] = useState<string>("auto");
-  const [token, setToken] = useState<string | null>();
 
-  useEffect(() => {
+  const checkLogin = () => {
     getToken().then((res) => {
-      setToken(res)
+      if (res)
+        get_user(res).then((userres) => {
+          if (userres)
+          setUser(userres)
+        })
     });
+  }
 
-    if (token)
-      get_user(token).then((res) => {
-        setUser(res)
-      })
-  }, []);
+  useFocusEffect(
+      useCallback(() => {
+        checkLogin();
+
+        return () => {
+        };
+      }, [])
+  )
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.profile}>
-        <TouchableOpacity
-          onPress={() => {
-            router.push("/auth");
-          }}
-        >{token ?
-          <View style={styles.profileAvatarWrapper}>
-            {user?.image ? (
-                <Image
-                    alt="Profile picture"
-                    source={{uri: user.image}}
-                    style={styles.profileAvatar}
-                />
-            ) : (
-                <Image
-                    alt="Profile picture"
-                    source={require("@/assets/images/blank.png")}
-                    style={styles.profileAvatar}
-                />
-            )}
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.profile}>
+            <TouchableOpacity
+                onPress={() => {
+                  router.push("/auth");
+                }}
+            >{user ?
+                <View style={styles.profileAvatarWrapper}>
 
-            <Text style={styles.profileName}>{user?.username}</Text>
-          </View> : <Text>Please login</Text>}
-        </TouchableOpacity>
-      </View>
-      <ScrollView>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
-          <Collapsible iconName="moon" text="Theme">
-            <Picker
-              selectedValue={themeForm}
-              onValueChange={(itemValue, itemIndex) => {
-                storeData({ storeKey: "theme", value: themeForm }).then(() => {
-                  getData({ storeKey: "theme" }).then((r) => {
-                    if (typeof r == "string") setThemeForm(r);
-                  });
-                });
-                setThemeForm(itemValue);
-              }}
-              itemStyle={{ color: colors.text }}
-            >
-              <Picker.Item label="Dark" value="dark" />
-              <Picker.Item label="Light" value="light" />
-              <Picker.Item label="System" value="auto" />
-            </Picker>
-          </Collapsible>
-          <Collapsible iconName="globe" text="Language">
-            <Picker
-              selectedValue={languageForm}
-              onValueChange={(itemValue, itemIndex) => {
-                storeData({ storeKey: "language", value: languageForm }).then(
-                  () => {
-                    getData({ storeKey: "language" }).then((r) => {
-                      if (typeof r == "string") setLanguageForm(r);
-                    });
-                  }
-                );
-                setLanguageForm(itemValue);
-              }}
-              itemStyle={{ color: colors.text }}
-            >
-              <Picker.Item label="Czech" value="czech" />
-              <Picker.Item label="English" value="english" />
-              <Picker.Item label="System" value="auto" />
-            </Picker>
-          </Collapsible>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                      <Image
+                          alt="Profile picture"
+                          source={require("@/assets/images/blank.png")}
+                          style={styles.profileAvatar}
+                      />
+
+
+                  <Text style={styles.profileName}>root</Text>
+                </View> : null}
+            </TouchableOpacity>
+          </View>
+          <ScrollView>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Preferences</Text>
+              <Collapsible iconName="moon" text="Theme">
+                <Picker
+                    selectedValue={themeForm}
+                    onValueChange={(itemValue, itemIndex) => {
+                      storeData({ storeKey: "theme", value: themeForm }).then(() => {
+                        getData({ storeKey: "theme" }).then((r) => {
+                          if (typeof r == "string") setThemeForm(r);
+                        });
+                      });
+                      setThemeForm(itemValue);
+                    }}
+                    itemStyle={{ color: colors.text }}
+                >
+                  <Picker.Item label="Dark" value="dark" />
+                  <Picker.Item label="Light" value="light" />
+                  <Picker.Item label="System" value="auto" />
+                </Picker>
+              </Collapsible>
+              <Collapsible iconName="globe" text="Language">
+                <Picker
+                    selectedValue={languageForm}
+                    onValueChange={(itemValue, itemIndex) => {
+                      storeData({ storeKey: "language", value: languageForm }).then(
+                          () => {
+                            getData({ storeKey: "language" }).then((r) => {
+                              if (typeof r == "string") setLanguageForm(r);
+                            });
+                          }
+                      );
+                      setLanguageForm(itemValue);
+                    }}
+                    itemStyle={{ color: colors.text }}
+                >
+                  <Picker.Item label="Czech" value="czech" />
+                  <Picker.Item label="English" value="english" />
+                  <Picker.Item label="System" value="auto" />
+                </Picker>
+              </Collapsible>
+              {user ?
+                  (<TouchableOpacity style={styles.row}  onPress={() => {
+                    deleteToken();
+                    checkLogin();
+                  }}>
+                    <View style={styles.rowIcon}>
+                      <IconSymbol name="rectangle.portrait.and.arrow.right" size={20} color="#000" />
+                    </View>
+                    <Text style={styles.rowLabel}>
+                      Sign out
+                    </Text>
+
+                  </TouchableOpacity>) : (
+                      <TouchableOpacity style={styles.row}  onPress={() => {
+                        router.push("/auth");
+                      }}>
+                        <View style={styles.rowIcon}>
+                          <IconSymbol name="person" size={20} color="#000" />
+                        </View>
+                        <Text style={styles.rowLabel}>
+                          Sign in
+                        </Text>
+
+                      </TouchableOpacity>
+                  )
+              }
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+
   );
 }
 

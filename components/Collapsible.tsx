@@ -1,10 +1,9 @@
-import React, { PropsWithChildren, useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -58,12 +57,16 @@ export function Collapsible({
   return (
     <View>
       <TouchableOpacity style={styles.heading} onPress={toggleDrawer}>
-        <IconSymbol
-          name={iconName}
-          size={18}
-          weight="medium"
-          color={colors.icon}
-        />
+        <View style={styles.rowIcon}>
+          <IconSymbol
+              name={iconName}
+              size={18}
+              weight="medium"
+              color={colors.icon}
+          />
+        </View>
+
+
 
         <Text style={styles.rowLabel}>{text}</Text>
 
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
   },
   drawer: {
     width: "100%",
-    overflow: "hidden", // Ensure content is clipped when collapsed
+    overflow: "hidden",
     borderRadius: 8,
     backgroundColor: colors.background,
     flexDirection: "column",
@@ -124,5 +127,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
+  },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 9999,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

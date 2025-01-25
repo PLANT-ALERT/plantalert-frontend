@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
-import {Icons, IconTypes} from "@/components/icons/Icons";
 
 
 const ProgressBar = ({progress = 0, max = 100}) => {
@@ -10,9 +9,7 @@ const ProgressBar = ({progress = 0, max = 100}) => {
         <View style={styles.container}>
             <View style={styles.barBackground}>
                 <View style={[styles.barForeground, {width: `${progressWidth}%`}]}>
-                    <View style={styles.icon}>
-                        <Icons name={IconTypes.DROP} />
-                    </View>
+
                 </View>
             </View>
         </View>

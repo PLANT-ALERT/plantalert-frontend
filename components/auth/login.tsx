@@ -5,27 +5,26 @@ import {
     StyleSheet,
     Button,
     TextInput,
+    KeyboardAvoidingView
 } from "react-native";
 import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {login} from "@/hooks/user";
 import {saveToken} from "@/hooks/tokenHandle"
+import {FieldValues} from "react-hook-form";
+import {router} from "expo-router";
+import {fetching, returnEndpoint} from "@/utils/fetching";
 
 let colors = getColors();
-import {FieldValues} from "react-hook-form";
 
 export default function Login() {
-    const {control, handleSubmit, formState: {errors}} = useForm();
+    const { control, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data: FieldValues) => {
-        let response = await login(data.username, data.password);
-
-        if (response.status == 200) {
-            const jsondata: {user_id: number} = await response.json();
-
-            saveToken(jsondata.user_id.toString());
-
-
+        let response = await fetching<{user_id: number}>(returnEndpoint('/login/'), true, {username: data.username, password: data.password});
+        if (response) {
+            saveToken(response.body.user_id.toString());
+            router.back();
         }
     }
 
@@ -38,42 +37,46 @@ export default function Login() {
                     control={control}
                     name="username"
                     rules={{
-                        min: {value: 1, message: "Enter username"},
+                        required: { value: true, message: "Username is required" },
+                        minLength: { value: 3, message: "Username must be at least 3 characters" },
                     }}
-                    render={({field}) => (
-                        <>
-                            <TextInput
-                                {...field}
-                                style={styles.input}
-                                placeholder="Username"
-                                placeholderTextColor={colors.text}
-                                textContentType={"username"}
-                            />
-                        </>
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Username"
+                            placeholderTextColor="#999"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
                     )}
                 />
                 {/*@ts-ignore*/}
                 {errors.username && <Text style={styles.errorText}>{errors.username.message}</Text>}
 
+                {/* Password Input */}
                 <Controller
                     control={control}
-                    render={({field}) => (
+                    name="password"
+                    rules={{
+                        required: { value: true, message: "Password is required" },
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            {...field}
                             style={styles.input}
                             placeholder="Password"
-                            textContentType={"password"}
-                            placeholderTextColor={colors.text}
+                            placeholderTextColor="#999"
+                            secureTextEntry
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
                         />
                     )}
-                    name="password"
-                    rules={{min: {value: 1, message: 'You must enter password'}}}
                 />
                 {/*@ts-ignore*/}
                 {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-                {/* Submit Butonu */}
-                <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
+                <Button title="Submit" onPress={handleSubmit(onSubmit)} />
             </View>
         </>
     );

@@ -9,8 +9,9 @@ import {
 import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {FieldValues} from "react-hook-form";
-import {create_user} from "@/hooks/user";
-import {} from "@/hooks/tokenHandle"
+import {saveToken} from "@/hooks/tokenHandle"
+import {fetching, returnEndpoint} from "@/utils/fetching";
+import {router} from "expo-router";
 
 let colors = getColors();
 
@@ -18,17 +19,15 @@ export default function Register({onSwitch}: { onSwitch: () => void }) {
     const {control, handleSubmit, formState: {errors}} = useForm();
 
     const onSubmit = async (data: FieldValues) => {
-        let formdata = {
-            username: data.username,
-            password: data.password,
-            email: data.email,
-        }
-        const result = await create_user(formdata);
-
-        if (result.status == 200) {
+        let {username, password, email} = data;
+        let response = await fetching<{user_id: number}>(returnEndpoint('/register/'), true, {username: username, password: password, email: email});
+        if (response) {
+            saveToken(response.body.user_id.toString());
             onSwitch();
+            router.back();
         }
     }
+
 
     return (
         <>
@@ -39,59 +38,68 @@ export default function Register({onSwitch}: { onSwitch: () => void }) {
                     control={control}
                     name="username"
                     rules={{
-                        min: {value: 1, message: "Enter username"},
+                        required: { value: true, message: "Username is required" },
+                        minLength: { value: 3, message: "Username must be at least 3 characters" },
                     }}
-                    render={({field}) => (
-                        <>
-                            <TextInput
-                                {...field}
-                                style={styles.input}
-                                placeholder="Username"
-                                placeholderTextColor={colors.text}
-                            />
-                        </>
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Username"
+                            placeholderTextColor="#999"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
                     )}
                 />
                 {/*@ts-ignore*/}
                 {errors.username && <Text style={styles.errorText}>{errors.username.message}</Text>}
+
                 <Controller
-                    control={control}
-                    name="email"
-                    rules={{
-                        min: {value: 1, message: "Enter email"},
-                    }}
-                    render={({field}) => (
-                        <>
-                            <TextInput
-                                {...field}
-                                style={styles.input}
-                                placeholder="Email"
-                                placeholderTextColor={colors.text}
-                            />
-                        </>
-                    )}
+                control={control}
+                name="email"
+                rules={{
+                required: { value: true, message: "Email is required" },
+                minLength: { value: 3, message: "Email must be at least 3 characters" },
+            }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#999"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
                 />
+            )}
+                />
+
                 {/*@ts-ignore*/}
                 {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
+                {/* Password Input */}
                 <Controller
                     control={control}
-                    render={({field}) => (
+                    name="password"
+                    rules={{
+                        required: { value: true, message: "Password is required" },
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            {...field}
                             style={styles.input}
                             placeholder="Password"
-                            placeholderTextColor={colors.text}
+                            placeholderTextColor="#999"
+                            secureTextEntry
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
                         />
                     )}
-                    name="password"
-                    rules={{min: {value: 1, message: 'You must enter password'}}}
                 />
                 {/*@ts-ignore*/}
                 {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-                {/* Submit Butonu */}
-                <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
+                <Button title="Submit" onPress={handleSubmit(onSubmit)} />
             </View>
         </>
     );

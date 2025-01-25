@@ -3,12 +3,18 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SymbolWeight } from 'expo-symbols';
 import React from 'react';
-import { OpaqueColorValue, StyleProp, ViewStyle } from 'react-native';
+import { OpaqueColorValue } from 'react-native';
 
 // Add your SFSymbol to MaterialIcons mappings here.
 const MAPPING = {
   // See MaterialIcons here: https://icons.expo.fyi
   // See SF Symbols in the SF Symbols app on Mac
+  'moon': 'brush',
+  'globe': 'language',
+  'rectangle.portrait.and.arrow.right': 'cancel',
+  'lightbulb': 'light-mode',
+  'thermometer': 'device-thermostat',
+  'drop': 'water-drop',
   'wifi': 'wifi',
   'plus': 'add',
   'gear': 'settings',

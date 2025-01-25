@@ -1,29 +1,37 @@
-export const fetching = async <T>(address: string, post?: boolean): Promise<T> => {
+import {API_URL} from "@/utils/enviroment";
+
+export const fetching = async <T>(address: string, post?: boolean, body? : object): Promise<{body: T, code: number} | undefined> => {
     try {
-        const response = await fetch(address, {
-            method: post ? "POST" : "GET",
+        let response = await fetch(address, {
+            method: post ? 'POST' : 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
         });
 
-        if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
+        if (!(response.status == 200)) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-
-        console.error(response.statusText);
-         // Parse response as JSON and cast to type T
-        return await response.json();
+        return {body: (await response.json() as T), code: response.status};
     } catch (error) {
-        throw error; // Re-throw the error for the caller to handle
+        if (error instanceof TypeError) {
+            console.error("Network error or fetch failed:", error.message);
+        } else if (error instanceof SyntaxError) {
+            console.error("Response is not valid JSON:", error.message);
+        } else {
+            // @ts-ignore
+            console.error("Other error:", error.message);
+        }
     }
 };
 
-export const health = async (address: string): Promise<boolean> => {
+export const health = async (address: string, timeout = 10000): Promise<boolean> => {
     try {
-        const response = await fetch(address, {
-            method: "GET",
-        });
+        const response = await fetch(address);
 
-        if (response.status === 200) {
+        if ((response as Response).status === 200) {
             return true;
         }
         return false;
@@ -60,5 +68,8 @@ export const loginWifi = async (address: string, ssid: string, password: string)
         return { status: 500, error: error };
 
     }
-
 };
+
+export function returnEndpoint(endpoint: string) {
+    return API_URL + endpoint;
+}

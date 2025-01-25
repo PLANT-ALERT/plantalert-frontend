@@ -1,4 +1,4 @@
-interface User_Interface {
+export interface User_Interface {
     home_id: number,
     username: string,
     email: string,

@@ -7,7 +7,7 @@ import {IconSymbolName} from "@/components/ui/IconSymbol"
 
 let colors = getColors();
 
-const InfoCard = ({iconName, cardTitle, iconColor, value}: {iconName: IconSymbolName, cardTitle: string, value?: string, iconColor?: OpaqueColorValue
+const InfoCard = ({iconName, cardTitle, iconColor, value}: {iconName: IconSymbolName, cardTitle: string, value?: string, iconColor?: string
 }) => {
     return (
         <View style={styles.card}>

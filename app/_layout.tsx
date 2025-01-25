@@ -29,13 +29,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={theme === Theme.dark ? DarkTheme : DefaultTheme}>
-
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false, headerTitle: 'Go back' }} />
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="auth" options={{ headerTitle: 'Authentication' }}  />
       </Stack>
-
       <StatusBar style="auto" />
     </ThemeProvider>
   );

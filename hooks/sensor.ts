@@ -1,3 +1,5 @@
+import {API_URL} from "@/utils/enviroment";
+
 export interface Sensor_Response {
     humidity: number,
     light: number,
@@ -8,7 +10,7 @@ export interface Sensor_Response {
 export const fetchLastSensor = async (
     MAC: string
 ) => {
-    let response = await fetch('http://127.0.0.1:8000/sensors/last_data/' + MAC + "/", {
+    let response = await fetch(API_URL + '/sensors/last_data/' + MAC + "/", {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
