@@ -131,7 +131,6 @@ export default function Settings() {
                         <Text style={styles.rowLabel}>
                           Sign in
                         </Text>
-
                       </TouchableOpacity>
                   )
               }

@@ -68,7 +68,7 @@ export default function AddSenzor() {
             const isConnected = await health("http://192.168.4.1/health");
             setIsConnectedToSensor(isConnected);
             fetching<string>("http://192.168.4.1/mac").then((result) => {
-                setMac(result);
+                if (result) setMac(result.body);
             })
             updateWifiList();
         } catch (error) {
@@ -80,7 +80,7 @@ export default function AddSenzor() {
         console.log("Checking list");
         try {
             const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
-            setWifiList(wifiRes);
+            if (wifiRes) setWifiList(wifiRes.body);
         } catch (err) {
         }
     };
