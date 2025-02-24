@@ -1,29 +1,33 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {
     View,
     Text,
     StyleSheet,
     Button,
     TextInput,
-    KeyboardAvoidingView
 } from "react-native";
-import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
-import {login} from "@/hooks/user";
-import {saveToken} from "@/hooks/tokenHandle"
 import {FieldValues} from "react-hook-form";
 import {router} from "expo-router";
 import {fetching, returnEndpoint} from "@/utils/fetching";
-
-let colors = getColors();
+import {useAuth} from "@/components/AuthProvider"
+import {themesTypes, useTheme} from "@/components/ThemeProvider"
 
 export default function Login() {
-    const { control, handleSubmit, formState: { errors } } = useForm();
+    const { control, setError ,handleSubmit, formState: { errors } } = useForm();
+    const {setToken} = useAuth();
+    const {theme} = useTheme();
+
+    let styles = returnStyles(theme);
 
     const onSubmit = async (data: FieldValues) => {
-        let response = await fetching<{user_id: number}>(returnEndpoint('/login/'), true, {username: data.username, password: data.password});
-        if (response) {
-            saveToken(response.body.user_id.toString());
+        let endpoint = returnEndpoint('/auth/login');
+
+        let response = await fetching<{user_id: number}>(endpoint, true, {username: data.username, password: data.password});
+        if (response?.code == 401) {
+            setError("password", {type: "manual", message: "Wrong username or password"});
+        } else if (response) {
+            setToken(response.body.user_id.toString());
             router.back();
         }
     }
@@ -82,7 +86,8 @@ export default function Login() {
     );
 }
 
-const styles = StyleSheet.create({
+function returnStyles(theme: themesTypes) {
+    return StyleSheet.create({
     container: {
         flex: 1,
         width: "100%",
@@ -92,18 +97,18 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "center",
         marginTop: 20,
-        color: colors.text,
+        color: theme.text,
     },
     subtitle: {
         fontSize: 18,
         textAlign: "center",
         marginTop: 10,
-        color: colors.subtitle,
+        color: theme.subtitle,
     },
     input: {
         height: 50,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
+        borderColor: theme.border,
+        backgroundColor: theme.background,
         borderRadius: 8,
         marginBottom: 12,
         paddingHorizontal: 12,
@@ -117,7 +122,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.background,
+        backgroundColor: theme.background,
     },
     modalBackground: {
         position: 'absolute',
@@ -129,14 +134,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     modalContent: {
-        backgroundColor: colors.background,
+        backgroundColor: theme.background,
         borderRadius: 12,
         padding: 15,
         justifyContent: 'center',
-        shadowColor: colors.shadow,
+        shadowColor: theme.shadow,
         shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.2,
         shadowRadius: 10,
         elevation: 10,
     }
 });
+
+}
+

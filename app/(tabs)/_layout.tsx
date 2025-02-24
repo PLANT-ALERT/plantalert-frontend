@@ -33,21 +33,21 @@ export default function TabLayout() {
                     name="index"
                     options={{
                         title: 'Senzors',
-                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" />,
                     }}
                 />
                 <Tabs.Screen
                     name="settings"
                     options={{
                         title: 'Settings',
-                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
+                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" />,
                     }}
                 />
                 <Tabs.Screen
                     name="add_senzor"
                     options={{
                         title: 'Add Senzor',
-                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
+                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus"  />,
                     }}
                 />
             </Tabs>

@@ -10,10 +10,6 @@ export const fetching = async <T>(address: string, post?: boolean, body? : objec
             body: JSON.stringify(body)
         });
 
-        if (!(response.status == 200)) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
         return {body: (await response.json() as T), code: response.status};
     } catch (error) {
         if (error instanceof TypeError) {
@@ -70,6 +66,6 @@ export const loginWifi = async (address: string, ssid: string, password: string)
     }
 };
 
-export function returnEndpoint(endpoint: string) {
+export function returnEndpoint(endpoint: string) : string {
     return API_URL + endpoint;
 }

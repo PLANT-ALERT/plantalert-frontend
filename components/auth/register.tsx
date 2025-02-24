@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {
     View,
     Text,
@@ -6,23 +6,28 @@ import {
     Button,
     TextInput,
 } from "react-native";
-import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {FieldValues} from "react-hook-form";
-import {saveToken} from "@/hooks/tokenHandle"
 import {fetching, returnEndpoint} from "@/utils/fetching";
 import {router} from "expo-router";
-
-let colors = getColors();
+import {useAuth} from "@/components/AuthProvider";
+import {themesTypes, useTheme} from "@/components/ThemeProvider";
 
 export default function Register({onSwitch}: { onSwitch: () => void }) {
-    const {control, handleSubmit, formState: {errors}} = useForm();
+    const {control, setError, handleSubmit, formState: {errors}} = useForm();
+    const {setToken} = useAuth();
+    let {theme} = useTheme();
+    let styles = returnStyles(theme);
 
     const onSubmit = async (data: FieldValues) => {
         let {username, password, email} = data;
         let response = await fetching<{user_id: number}>(returnEndpoint('/register/'), true, {username: username, password: password, email: email});
-        if (response) {
-            saveToken(response.body.user_id.toString());
+        if (response?.code == 401) {
+            setError("username", {type: "manual", message: "Username is already used"});
+        } else if (response?.code == 402) {
+            setError("email", {type: "manual", message: "Email is already used"});
+        } else if (response) {
+            setToken(response.body.user_id.toString());
             onSwitch();
             router.back();
         }
@@ -105,61 +110,63 @@ export default function Register({onSwitch}: { onSwitch: () => void }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-       flex: 1,
-        width: '100%',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        textAlign: "center",
-        marginTop: 20,
-        color: colors.text,
-    },
-    subtitle: {
-        fontSize: 18,
-        textAlign: "center",
-        marginTop: 10,
-        color: colors.subtitle,
-    },
-    input: {
-        height: 50,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
-        borderRadius: 8,
-        marginBottom: 12,
-        paddingHorizontal: 12,
-        width: "100%",
-    },
-    errorText: {
-        color: 'red',
-        marginBottom: 10,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.background,
-    },
-    modalBackground: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalContent: {
-        backgroundColor: colors.background,
-        borderRadius: 12,
-        padding: 15,
-        justifyContent: 'center',
-        shadowColor: colors.shadow,
-        shadowOffset: {width: 0, height: 4},
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        elevation: 10,
-    }
-});
+function returnStyles(colors: themesTypes) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            width: '100%',
+        },
+        title: {
+            fontSize: 24,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginTop: 20,
+            color: colors.text,
+        },
+        subtitle: {
+            fontSize: 18,
+            textAlign: "center",
+            marginTop: 10,
+            color: colors.subtitle,
+        },
+        input: {
+            height: 50,
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+            borderRadius: 8,
+            marginBottom: 12,
+            paddingHorizontal: 12,
+            width: "100%",
+        },
+        errorText: {
+            color: 'red',
+            marginBottom: 10,
+        },
+        modalContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        modalBackground: {
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        modalContent: {
+            backgroundColor: colors.background,
+            borderRadius: 12,
+            padding: 15,
+            justifyContent: 'center',
+            shadowColor: colors.shadow,
+            shadowOffset: {width: 0, height: 4},
+            shadowOpacity: 0.2,
+            shadowRadius: 10,
+            elevation: 10,
+        }
+    });
+}

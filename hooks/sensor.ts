@@ -10,7 +10,7 @@ export interface Sensor_Response {
 export const fetchLastSensor = async (
     MAC: string
 ) => {
-    let response = await fetch(API_URL + '/sensors/last_data/' + MAC + "/", {
+    let response = await fetch(API_URL + '/sensors/last_data/humidity/' + MAC + "/", {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -18,8 +18,8 @@ export const fetchLastSensor = async (
     });
 
     if (response.status == 200) {
-        let data : Sensor_Response = await response.json();
-        return data;
+        let data : {humidity: string} = await response.json();
+        return Number(data.humidity);
     }
 
 };

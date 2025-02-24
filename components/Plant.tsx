@@ -10,60 +10,34 @@ import {
     ScrollView
 } from 'react-native';
 import ProgressBar from "@/components/ProgressBar"
-import {getColors} from "@/constants/Colors";
-import textStyles from "@/constants/TextStyles"
-import InfoCard from "@/components/InfoCard";
-import Chart from "@/components/Chart";
-import {getChartData} from "@/hooks/getChartData";
-import {IconSymbol} from "@/components/ui/IconSymbol";
-import {fetchLastSensor} from "@/hooks/sensor";
+import {router} from "expo-router";
 import {translateToPercentage} from "@/utils/translator"
-import {Sensor_Response} from "@/hooks/sensor";
 import {useTheme, themesTypes} from "./ThemeProvider"
+import {fetching, returnEndpoint} from "@/utils/fetching"
 
-let colors = getColors();
 
 export default function PlantCard(props: {name: string, age: string, image?: string, mac: string}) {
     const {name, age, image, mac} = props;
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [sensor, setSensor] = useState<Sensor_Response>();
+    let [humidity, setHumidity] = useState<number>();
     let {theme} = useTheme();
     let styles = returnStyles(theme)
 
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
-
-    let chart = getChartData("demo")
-
     useEffect(() => {
-        // Function to fetch the latest sensor data
-        const fetchData = async () => {
-            try {
-                const sensorData = await fetchLastSensor(mac);
-                if (sensorData) {
-                    setSensor(sensorData);
-                }
-            } catch (error) {
-                console.error('Error fetching sensor data:', error);
-            }
-        };
-
-        // Initial fetch
-        fetchData();
-
-        // Set up periodic fetching
-        const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
-
-        // Cleanup function to clear the interval
-        return () => clearInterval(intervalId);
-    }, [mac]); // Re-run if `mac` changes
-
+        fetching<number>(returnEndpoint("/sensors/last_data/humidity/") + mac).then((humidity) => {
+             if (humidity) {
+                 setHumidity(humidity.body)
+                 console.log(humidity?.code)
+             }
+        })
+    }, [mac]);
 
     return (
         <>
             <TouchableOpacity
-                onPress={toggleModal}
+                onPress={() => {
+                    if (humidity)
+                    router.push({pathname: "/flowerpage", params: {mac: mac}})
+                }}
                 style={styles.card}
             >
                 <View style={styles.wrapper}>
@@ -77,64 +51,10 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                         <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age}</Text>
                     </View>
                 </View>
-                <ProgressBar color={"white"} progress={translateToPercentage(Number(sensor?.soil))} max={100} />
+                {humidity && (
+                    <ProgressBar color={"white"} progress={translateToPercentage(humidity, 0, 100)} max={100} />
+                )}
             </TouchableOpacity>
-
-            {/* Modal */}
-            <Modal
-                visible={isModalVisible}
-                animationType="fade"
-                transparent={true}
-                onRequestClose={toggleModal}
-            >
-                <View style={styles.modalContainer}>
-                    <TouchableWithoutFeedback onPress={toggleModal}>
-                        <View style={styles.modalBackground} />
-                    </TouchableWithoutFeedback>
-                    <View style={styles.modalContent}>
-                        <ScrollView style={{maxHeight: "100%", maxWidth: "100%"}}>
-                            <View style={{gap: 10}}>
-                                <View style={styles.infoCardContainer}>
-                                    <InfoCard cardTitle="Air-Humadity" iconName="drop" value={`${sensor?.humidity} %`} iconColor="green"/>
-                                    <InfoCard cardTitle="Soil-Humadity" iconName="drop" value={`${translateToPercentage(Number(sensor?.soil))} %`} iconColor="green"/>
-                                    <InfoCard cardTitle="Air-Tempature" iconName="thermometer" iconColor="green" value={`${sensor?.temp} °C`}/>
-                                    <InfoCard cardTitle="Light" iconName="lightbulb" iconColor="green" value={`${sensor?.light} lux`}/>
-                                </View>
-                                {/*<Text style={textStyles.title}>Advanced information</Text>*/}
-                                {/*<View style={styles.row}>*/}
-                                {/*    <IconSymbol name="drop" size={20} color={colors.icon}></IconSymbol>*/}
-                                {/*    <Text style={textStyles.subtitle}> Humadity over time</Text>*/}
-                                {/*</View>*/}
-                                {/*    {chart && (*/}
-                                {/*        <Chart key="chart" lines={chart} />*/}
-                                {/*    )}*/}
-                                {/*<View style={styles.row}>*/}
-                                {/*    <IconSymbol name="thermometer" size={20} color={colors.icon}></IconSymbol>*/}
-                                {/*    <Text style={textStyles.subtitle}> Air tempature over time</Text>*/}
-                                {/*</View>*/}
-                                {/*{chart && (*/}
-                                {/*    <Chart key="chart" lines={chart} />*/}
-                                {/*)}*/}
-
-                                {/*<View style={styles.row}>*/}
-                                {/*    <IconSymbol name="drop" size={20} color={colors.icon}></IconSymbol>*/}
-                                {/*    <Text style={textStyles.subtitle}> Air humadity over time</Text>*/}
-                                {/*</View>*/}
-                                {/*{chart && (*/}
-                                {/*    <Chart key="chart" lines={chart} />*/}
-                                {/*)}*/}
-                                {/*<View style={styles.row}>*/}
-                                {/*    <IconSymbol name="lightbulb" size={20} color={colors.icon} />*/}
-                                {/*    <Text style={textStyles.subtitle}> Light over time</Text>*/}
-                                {/*</View>*/}
-                                {/*{chart && (*/}
-                                {/*    <Chart key="chart" lines={chart} />*/}
-                                {/*)}*/}
-                            </View>
-                        </ScrollView>
-                    </View>
-                </View>
-            </Modal>
         </>
     );
 }
@@ -189,13 +109,6 @@ function returnStyles(theme: themesTypes) {
             shadowOpacity: 0.2,
             shadowRadius: 10,
             elevation: 10,
-        },
-        infoCardContainer: {
-            minWidth: "90%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            width: "100%",
         },
         chartsContainer: {
             flexShrink: 1,

@@ -7,12 +7,9 @@ import {
   View,
 } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { getColors } from "@/constants/Colors";
-import { getColorReverseIcon } from "@/utils/theme";
 import { SFSymbols5_0 } from "sf-symbols-typescript";
 import {themesTypes, useTheme} from "@/components/ThemeProvider";
 
-let colors = getColors();
 
 export function Collapsible({
   children,
@@ -66,13 +63,9 @@ export function Collapsible({
               weight="medium"
           />
         </View>
-
-
-
         <Text style={styles.rowLabel}>{text}</Text>
 
         <View style={styles.rowSpacer}></View>
-
         <Animated.View
           style={{
             transform: [{ rotate: rotation }], // Apply rotation animation
@@ -82,7 +75,6 @@ export function Collapsible({
             name="chevron.up"
             size={18}
             weight="medium"
-            color={getColorReverseIcon()}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -141,6 +133,7 @@ function returnStyles(theme: themesTypes) {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+
     },
   });
 

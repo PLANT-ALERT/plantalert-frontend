@@ -9,19 +9,16 @@ import {
     TouchableWithoutFeedback,
     Keyboard, Modal
 } from "react-native";
-import {getColors} from "@/constants/Colors";
 import {useForm, Controller} from 'react-hook-form';
 import {Picker} from "@react-native-picker/picker";
 import {Wifi} from "@/types/wifi";
 import {health, fetching, loginWifi} from "@/utils/fetching";
-let colors = getColors();
 import {FieldValues} from "react-hook-form";
 import { router } from "expo-router";
 import {registerSensor} from "@/hooks/user";
-import {getToken} from "@/hooks/tokenHandle";
 import {IconSymbol} from "@/components/ui/IconSymbol";
-import {useFocusEffect} from "@react-navigation/native";
 import {themesTypes, useTheme} from "@/components/ThemeProvider";
+import {useAuth} from "@/components/AuthProvider"
 
 export default function AddSenzor() {
     const [wifiModal, setWifiModal] = useState<boolean>(false);
@@ -33,8 +30,7 @@ export default function AddSenzor() {
     const [mac, setMac] = useState<string>();
     const [checkConnectionInterval, setCheckConnectionInterval] = useState<NodeJS.Timeout | null>(null);
     const [checkWifiListInterval, setCheckWifiListInterval] = useState<NodeJS.Timeout | null>(null);
-    const [token, setToken] = useState<string>();
-
+    const {token} = useAuth();
     let {theme} = useTheme();
 
     let styles = returnStyle(theme);
@@ -55,9 +51,7 @@ export default function AddSenzor() {
             }
 
             if (mac) {
-                getToken().then(token => {
-                    if (token) registerSensor(mac, token, data.name)
-                })
+                if (token) registerSensor(mac, token, data.name)
             }
         })
     }
@@ -69,7 +63,6 @@ export default function AddSenzor() {
 
     const checkConnection = async () => {
         try {
-            checkToken();
             const isConnected = await health("http://192.168.4.1/health");
             setIsConnectedToSensor(isConnected);
             fetching<string>("http://192.168.4.1/mac").then((result) => {
@@ -90,14 +83,6 @@ export default function AddSenzor() {
         }
     };
 
-    const checkToken = () => {
-        getToken().then((result) => {
-            if (result) setToken(result);
-            console.log(result);
-        })
-    }
-
-
     useEffect(() => {
         const connectionInterval = setInterval(checkConnection, 2500);
         const wifiListInterval = setInterval(updateWifiList, 20000);
@@ -109,7 +94,7 @@ export default function AddSenzor() {
         return () => {
             clearIntervals();
         }
-    }, [token]);
+    }, []);
 
     const clearIntervals = () => {
         if (checkConnectionInterval) {
@@ -122,12 +107,11 @@ export default function AddSenzor() {
         }
     };
 
-
     if (!token) {
         return (
             <TouchableWithoutFeedback onPress={()=> {router.push("/auth")}} >
                 <View style={styles.container}>
-                    <IconSymbol name="person" size={44} color={colors.tabIconSelected}/>
+                    <IconSymbol name="person" size={44} />
                     <Text style={styles.title}>Please login before setting sensors</Text>
                 </View>
             </TouchableWithoutFeedback>
@@ -161,7 +145,7 @@ export default function AddSenzor() {
                                         style={styles.input}
                                         placeholder="SSID"
                                         editable={false} // Prevent manual input
-                                        placeholderTextColor={colors.text}
+                                        placeholderTextColor={theme.text}
                                 />
                             )}
                         />
@@ -175,7 +159,7 @@ export default function AddSenzor() {
                                     {...field}
                                     style={styles.input}
                                     placeholder="Password"
-                                    placeholderTextColor={colors.text}
+                                    placeholderTextColor={theme.text}
                                 />
                             )}
                             name="password"
@@ -191,7 +175,7 @@ export default function AddSenzor() {
                                     {...field}
                                     style={styles.input}
                                     placeholder="Sensor name"
-                                    placeholderTextColor={colors.text}
+                                    placeholderTextColor={theme.text}
                                 />
                             )}
                             name="name"
@@ -221,7 +205,7 @@ export default function AddSenzor() {
                                             setWifiSSID(itemValue);
                                         }
                                     }
-                                    itemStyle={{color: colors.text}}
+                                    itemStyle={{color: theme.text}}
                                 >
                                     {wifiList ? wifiList.map((wifi, index) => (
                                         <Picker.Item key={index} label={`${wifi.security != 0 ? "🔒" : null} ${wifi.ssid} `} value={wifi.ssid}   />
@@ -239,13 +223,13 @@ export default function AddSenzor() {
     }
 
 
-        return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color={colors.tabIconSelected}/>
-                <Text style={styles.title}>Checking connection...</Text>
-                <Text style={styles.subtitle}>Please connect to sensor wifi connection</Text>
-            </View>
-        );
+    return (
+        <View style={styles.container}>
+            <ActivityIndicator size="large" color={theme.tabIconSelected}/>
+            <Text style={styles.title}>Checking connection...</Text>
+            <Text style={styles.subtitle}>Please connect to sensor wifi connection</Text>
+        </View>
+    );
 
 }
 
@@ -303,7 +287,7 @@ function returnStyle(theme : themesTypes) {
             borderRadius: 12,
             padding: 15,
             justifyContent: 'center',
-            shadowColor: colors.shadow,
+            shadowColor: theme.shadow,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.2,
             shadowRadius: 10,

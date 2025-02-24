@@ -9,33 +9,31 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import {User} from "@/types/user"
+import { User } from "@/types/user"
 import { Collapsible } from "@/components/Collapsible";
 import { router } from "expo-router";
 import { storeData, getData } from "@/hooks/setStorageData";
-import {deleteToken, getToken} from "@/hooks/tokenHandle";
-import {get_user} from "@/hooks/user";
-import {IconSymbol} from "@/components/ui/IconSymbol";
+import { get_user } from "@/hooks/user";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useFocusEffect } from '@react-navigation/native';
-import {themesTypes, useTheme} from '@/components/ThemeProvider';
-
+import { themesTypes, useTheme } from '@/components/ThemeProvider';
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
   const [languageForm, setLanguageForm] = useState<string>();
   const [themeForm, setThemeForm] = useState<string>();
-  const { theme, toggleTheme } = useTheme();
+  const {theme, toggleTheme} = useTheme();
+  const {token, removeToken} = useAuth();
 
   let styles = returnStyle(theme);
 
   const checkLogin = () => {
-    getToken().then((res) => {
-      if (res)
-        get_user(res).then((userres) => {
-          if (userres)
-          setUser(userres)
+      if (token)
+        get_user(token).then((res) => {
+          if (res)
+          setUser(res)
         })
-    });
   }
 
   useEffect(() => {
@@ -69,15 +67,14 @@ export default function Settings() {
               onPress={() => {
                 router.push("/auth");
               }}
-          >{user ?
+          >{token ?
               <View style={styles.profileAvatarWrapper}>
-
                 <Image
                     alt="Profile picture"
-                    source={require("@/assets/images/blank.png")}
+                    source={user?.image == null ? require("@/assets/images/blank.png") : user.image}
                     style={styles.profileAvatar}
                 />
-                <Text style={styles.profileName}>root</Text>
+                <Text style={styles.profileName}>{user?.username}</Text>
               </View> : null}
           </TouchableOpacity>
         </View>
@@ -123,13 +120,13 @@ export default function Settings() {
                 <Picker.Item label="System" value="auto" />
               </Picker>
             </Collapsible>
-            {user ?
+            {token ?
                 (<TouchableOpacity style={styles.row}  onPress={() => {
-                  deleteToken();
-                  checkLogin();
+                  removeToken();
+                  setUser(null);
                 }}>
                   <View style={styles.rowIcon}>
-                    <IconSymbol name="rectangle.portrait.and.arrow.right" size={20} color="#000" />
+                    <IconSymbol name="rectangle.portrait.and.arrow.right" size={20}/>
                   </View>
                   <Text style={styles.rowLabel}>
                     Sign out
@@ -140,7 +137,7 @@ export default function Settings() {
                       router.push("/auth");
                     }}>
                       <View style={styles.rowIcon}>
-                        <IconSymbol name="person" size={20} color="#000" />
+                        <IconSymbol name="person" size={20}  />
                       </View>
                       <Text style={styles.rowLabel}>
                         Sign in

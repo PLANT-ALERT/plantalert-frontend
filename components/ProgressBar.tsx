@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 
-
 const ProgressBar = ({progress = 0, max = 100, color = ""}) => {
     const progressWidth = Math.max(0, Math.min(progress / max, 1)) * 100;
 

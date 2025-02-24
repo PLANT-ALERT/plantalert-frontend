@@ -30,9 +30,6 @@ const MAPPING = {
   >
 >;
 
-import {getColors} from "@/constants/Colors";
-
-let colors = getColors();
 
 export type IconSymbolName = keyof typeof MAPPING;
 
@@ -44,11 +41,9 @@ export type IconSymbolName = keyof typeof MAPPING;
 export function IconSymbol({
   name,
   size = 24,
-  color,
 }: {
   name: IconSymbolName;
   size?: number;
-  color?: string | OpaqueColorValue;
   weight?: SymbolWeight;
 }) {
   let {theme} = useTheme();

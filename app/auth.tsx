@@ -2,10 +2,13 @@ import {useState} from "react";
 import Login from "@/components/auth/login"
 import Register from "@/components/auth/register"
 import {Keyboard, StyleSheet, TouchableWithoutFeedback, View, Switch, Text} from "react-native";
-import textStyles from "@/constants/TextStyles"
+import {getTextStyles} from "@/constants/TextStyles"
+import {useTheme} from "@/components/ThemeProvider"
 
 export default function Auth() {
     const [register, setRegister] = useState<boolean>(false)
+    let {theme} = useTheme();
+    let textStyles = getTextStyles(theme);
 
     const toggleRegister = () => {
         setRegister(!register)

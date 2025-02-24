@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import {StatusBar} from 'expo-status-bar';
 import {useEffect} from 'react';
 import 'react-native-reanimated';
-
+import {AuthProvider} from "@/components/AuthProvider";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -26,12 +26,15 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, headerTitle: 'Go back'}} />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen name="auth" options={{ headerTitle: 'Authentication' }}  />
-      </Stack>
-      <StatusBar style="auto"/>
+      <AuthProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, headerTitle: 'Go back'}} />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="auth" options={{ headerTitle: 'Authentication' }}  />
+          <Stack.Screen name="flowerpage" options={{ headerTitle: '' }}  />
+        </Stack>
+        <StatusBar style="auto"/>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
