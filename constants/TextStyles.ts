@@ -7,6 +7,9 @@ export function getTextStyles(colors: themesTypes) {
             flex: 1,
             width: "100%",
         },
+        bald: {
+        fontWeight: "bold",
+        },
         title: {
             fontSize: 24,
             fontWeight: "bold",

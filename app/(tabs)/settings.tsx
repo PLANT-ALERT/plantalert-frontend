@@ -48,7 +48,10 @@ export default function Settings() {
         setThemeForm(r);
 
       }
+
+      checkLogin();
     });
+
   }, [themeForm, languageForm]);
 
   useFocusEffect(

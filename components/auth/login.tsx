@@ -4,7 +4,7 @@ import {
     Text,
     StyleSheet,
     Button,
-    TextInput,
+    TextInput
 } from "react-native";
 import {useForm, Controller} from 'react-hook-form';
 import {FieldValues} from "react-hook-form";
@@ -37,6 +37,7 @@ export default function Login() {
             <View style={styles.container}>
                 <Text style={styles.title}>Login</Text>
                 <View style={{marginTop: 10}}></View>
+
                 <Controller
                     control={control}
                     name="username"
