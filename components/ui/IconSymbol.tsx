@@ -10,6 +10,7 @@ import {useTheme} from "@/components/ThemeProvider"
 const MAPPING = {
   // See MaterialIcons here: https://icons.expo.fyi
   // See SF Symbols in the SF Symbols app on Mac
+  'xmark': 'close',
   'moon': 'brush',
   'globe': 'language',
   'rectangle.portrait.and.arrow.right': 'cancel',

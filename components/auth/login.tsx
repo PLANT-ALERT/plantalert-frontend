@@ -23,7 +23,7 @@ export default function Login() {
     const onSubmit = async (data: FieldValues) => {
         let endpoint = returnEndpoint('/auth/login');
 
-        let response = await fetching<{user_id: number}>(endpoint, true, {username: data.username, password: data.password});
+        let response = await fetching<{user_id: number}>(endpoint, "POST", {username: data.username, password: data.password});
         if (response?.code == 401) {
             setError("password", {type: "manual", message: "Wrong username or password"});
         } else if (response) {

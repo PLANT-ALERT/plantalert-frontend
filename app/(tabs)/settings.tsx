@@ -9,15 +9,15 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { User } from "@/types/user"
+import {User, User_Interface} from "@/types/user"
 import { Collapsible } from "@/components/Collapsible";
 import { router } from "expo-router";
 import { storeData, getData } from "@/hooks/setStorageData";
-import { get_user } from "@/hooks/user";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useFocusEffect } from '@react-navigation/native';
 import { themesTypes, useTheme } from '@/components/ThemeProvider';
 import { useAuth } from "@/components/AuthProvider";
+import {fetching, returnEndpoint} from "@/utils/fetching";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,14 +27,6 @@ export default function Settings() {
   const {token, removeToken} = useAuth();
 
   let styles = returnStyle(theme);
-
-  const checkLogin = () => {
-      if (token)
-        get_user(token).then((res) => {
-          if (res)
-          setUser(res)
-        })
-  }
 
   useEffect(() => {
     getData({ storeKey: "language" }).then((r) => {
@@ -48,20 +40,14 @@ export default function Settings() {
         setThemeForm(r);
 
       }
-
-      checkLogin();
     });
+
+    fetching<User_Interface>(returnEndpoint("/users/" + Number(token))).then((user) => {
+      if (user) setUser(user.body)
+    })
 
   }, [themeForm, languageForm]);
 
-  useFocusEffect(
-      useCallback(() => {
-        checkLogin();
-
-        return () => {
-        };
-      }, [])
-  )
 
   return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -74,7 +60,7 @@ export default function Settings() {
               <View style={styles.profileAvatarWrapper}>
                 <Image
                     alt="Profile picture"
-                    source={user?.image == null ? require("@/assets/images/blank.png") : user.image}
+                    source={user?.image == "None" ? require("@/assets/images/blank.png") : user?.image}
                     style={styles.profileAvatar}
                 />
                 <Text style={styles.profileName}>{user?.username}</Text>

@@ -11,10 +11,9 @@ const Chart = ({lines}: { lines: Line[] }) => {
 
     return (
         <GestureHandlerRootView style={styles.container}>
-            <LineChart
-                width={300}
-                lines={lines}
-            />
+            {/*<LineChart*/}
+            {/*    width={300}*/}
+            {/*/>*/}
         </GestureHandlerRootView>
     );
 };

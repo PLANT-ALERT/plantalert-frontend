@@ -21,6 +21,7 @@ export class User {
 }
 
 interface Sensor_Interface {
+    id: number;
     user_id: number,
     home_id: number,
     name: string,
@@ -31,9 +32,11 @@ interface Sensor_Interface {
     flower_id: number,
     created_at: string
     humidity: number,
+    image?: string,
 }
 
 export class Sensor {
+    id: number;
     home_id: number;
     name: string;
     description: string;
@@ -42,8 +45,10 @@ export class Sensor {
     flower_id: number;
     created_at: Date;
     humidity: number;
+    image?: string;
 
     constructor(user: Sensor_Interface) {
+        this.id = user.id;
         this.home_id = user.home_id;
         this.name = user.name;
         this.description = user.description;
@@ -51,7 +56,8 @@ export class Sensor {
         this.age = user.age;
         this.flower_id = user.flower_id;
         this.created_at = new Date(user.created_at);
-        this.humidity = user.humidity
+        this.humidity = user.humidity;
+        this.image = user.image;
     }
 }
 

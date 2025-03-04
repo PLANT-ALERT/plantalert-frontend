@@ -28,11 +28,16 @@ export default function TabLayout() {
                             backgroundColor: theme.tabs,
                         },
                     }),
+                    headerStyle: Platform.select({
+                        default: {
+                            backgroundColor: theme.background,
+                        }
+                    })
                 }}>
                 <Tabs.Screen
                     name="index"
                     options={{
-                        title: 'Senzors',
+                        title: 'Sensors',
                         tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" />,
                     }}
                 />

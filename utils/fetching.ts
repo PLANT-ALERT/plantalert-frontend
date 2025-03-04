@@ -1,9 +1,20 @@
 import {API_URL} from "@/utils/enviroment";
 
-export const fetching = async <T>(address: string, post?: boolean, body? : object): Promise<{body: T, code: number} | undefined> => {
+enum methods {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE",
+}
+
+export const fetching = async <T>(address: string, method?: methods | string, body? : object): Promise<{body: T, code: number} | undefined> => {
+    if (!method) {
+        method = "GET"
+    }
+
     try {
         let response = await fetch(address, {
-            method: post ? 'POST' : 'GET',
+            method: method || 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },

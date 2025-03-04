@@ -6,13 +6,15 @@ import {Sensor} from "@/types/user";
 import {fetching, returnEndpoint} from "@/utils/fetching";
 import {useTheme} from "@/components/ThemeProvider";
 import {useAuth} from "@/components/AuthProvider";
-
+import {registerIndieID} from "native-notify";
+import { NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND } from "@/utils/enviroment";
 
 export default function HomeScreen() {
     const [sensors, setSensors] = useState<Sensor[] | null>();
     const [sensorsLoading, setSensorsLoading] = useState(true);
     let {theme} = useTheme();
     let {token} = useAuth();
+    registerIndieID(token, NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND)
 
     useEffect(() => {
         if (token) {
@@ -20,7 +22,6 @@ export default function HomeScreen() {
 
             fetching<Sensor[]>(endpoint).then((sensorslist) => {
                 if (sensorslist) {
-                    console.log("fetched");
                     setSensors(sensorslist.body)
                     setSensorsLoading(false);
                 }
@@ -54,7 +55,7 @@ export default function HomeScreen() {
             <ScrollView>
                 <View style={styles.wrapper}>
                     {sensors.map((sensor, index) => (
-                        <Plant key={index} name={sensor.name} mac={sensor.mac_address} age={"21-1-2025"}/>
+                        <Plant key={index} sensor={sensor} />
                     ))}
                 </View>
             </ScrollView>

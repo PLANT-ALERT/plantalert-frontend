@@ -4,39 +4,36 @@ import {
     Text,
     StyleSheet,
     Image,
-    Modal,
-    TouchableWithoutFeedback,
     TouchableOpacity,
-    ScrollView
 } from 'react-native';
+import {Sensor} from "@/types/user";
 import ProgressBar from "@/components/ProgressBar"
 import {router} from "expo-router";
 import {translateToPercentage} from "@/utils/translator"
 import {useTheme, themesTypes} from "./ThemeProvider"
 import {fetching, returnEndpoint} from "@/utils/fetching"
 
-
-export default function PlantCard(props: {name: string, age: string, image?: string, mac: string}) {
-    const {name, age, image, mac} = props;
+export default function PlantCard(props: {sensor: Sensor}) {
+    const {name, age, created_at, flower_id, id, mac_address, image} = props.sensor;
     let [humidity, setHumidity] = useState<number>();
     let {theme} = useTheme();
     let styles = returnStyles(theme)
 
     useEffect(() => {
-        fetching<number>(returnEndpoint("/sensors/last_data/humidity/") + mac).then((humidity) => {
+        fetching<number>(returnEndpoint("/sensors/last_data/humidity/") + mac_address).then((humidity) => {
              if (humidity) {
                  setHumidity(humidity.body)
                  console.log(humidity?.code)
              }
         })
-    }, [mac]);
+    }, [mac_address]);
 
     return (
         <>
             <TouchableOpacity
                 onPress={() => {
                     if (humidity)
-                    router.push({pathname: "/flowerpage", params: {mac: mac}})
+                    router.push({pathname: "/flowerpage", params: {mac: mac_address, flower_id: flower_id, sensor_id: id}})
                 }}
                 style={styles.card}
             >
@@ -48,7 +45,7 @@ export default function PlantCard(props: {name: string, age: string, image?: str
                     />
                     <View style={{ display: "flex", flexDirection: "column" }}>
                         <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{name}</Text>
-                        <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age}</Text>
+                        <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age ? String(getDate(age)) : `${String(created_at)}`}</Text>
                     </View>
                 </View>
                 {humidity && (
