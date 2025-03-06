@@ -17,6 +17,7 @@ import FetchingTimer from "@/components/FetchingTimer";
 import {getTextStyles} from "@/constants/TextStyles"
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import Chart from "@/components/Chart";
+import {chart_GET, bulkChart} from "@/types/chart"
 
 let FETCH_INTERVAL = 20;
 
@@ -28,6 +29,9 @@ export default function Flowerpage() {
     const [flower, setFlower] = useState<flower_GET>();
     const [lostSensorModal, setLostSensorModal] = useState(false);
     const [deleteSensorModal, setDeleteSensorModal] = useState(false);
+    const [graphs, setGraphs] = useState<bulkChart>();
+
+    let time = 2;
 
     let styles = returnStyles(theme);
 
@@ -44,12 +48,23 @@ export default function Flowerpage() {
     let fetchData: () => void;
 
     useEffect(() => {
-        fetchData = () => {
+        fetchData = async () => {
             fetching<Sensor_Response>(returnEndpoint("/sensors/last_data/" + mac)).then((sensor) => {
                 if (sensor) setSensor(sensor.body);
             });
             fetching<flower_GET>(returnEndpoint("/sensors/flower?sensor_id=" + sensor_id)).then((flower) => {
                 if (flower) setFlower(flower.body)
+            })
+            let chartSoil = await fetching<chart_GET[]>(returnEndpoint(`/chart/soil-humidity/${mac}/${time}`))
+            let chartTemp = await fetching<chart_GET[]>(returnEndpoint(`/chart/temperature/${mac}/${time}`))
+            let chartHumi = await fetching<chart_GET[]>(returnEndpoint(`/chart/air-humidity/${mac}/${time}`))
+            let chartLight = await fetching<chart_GET[]>(returnEndpoint(`/chart/light/${mac}/${time}`))
+
+            setGraphs({
+                light: chartLight?.body,
+                soil: chartSoil?.body,
+                temperature: chartTemp?.body,
+                humidity: chartHumi?.body,
             })
         };
 
@@ -83,9 +98,25 @@ export default function Flowerpage() {
                         <InfoCard cardTitle="Tempature" recommendedValue={{min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")}}  iconName="thermometer" value={`${sensor?.temp} °C`}/>
                         <InfoCard cardTitle="Light" recommendedValue={{only_one: String(flower?.light + " lux")}} iconName="lightbulb" value={`${sensor?.light} lux`}/>
                     </View>
-                    <View>
-                        {/*<Chart lines={}/>*/}
+                    <View style={{display: "flex", gap: 10}}>
+                        {graphs &&
+                            (
+                                <>
+                                    <Text style={text.subtitle}> Graf světla </Text>
+                                    {graphs?.light ? <Chart lines={graphs.light}/> : <Text>DATA NOT AVA</Text>}
+                                    <Text style={text.subtitle}> Graf vlhkosti zeminy </Text>
 
+                                    {graphs?.soil ? <Chart lines={graphs.soil}/> : <Text>DATA NOT AVA</Text>}
+                                    <Text style={text.subtitle}> Graf vlhkosti vzduchu </Text>
+
+                                    {graphs?.humidity ? <Chart lines={graphs.humidity}/> : <Text>DATA NOT AVA</Text>}
+
+                                    <Text style={text.subtitle}> Graf teploty </Text>
+
+                                    {graphs?.temperature ? <Chart lines={graphs.temperature}/> : <Text>DATA NOT AVA</Text>}
+                                </>
+                            )
+                        }
 
                     </View>
                     {/*sensor settings*/}
