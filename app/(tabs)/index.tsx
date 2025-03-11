@@ -14,20 +14,31 @@ export default function HomeScreen() {
     const [sensorsLoading, setSensorsLoading] = useState(true);
     let {theme} = useTheme();
     let {token} = useAuth();
-    registerIndieID(token, NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND)
 
     useEffect(() => {
         if (token) {
-            let endpoint = returnEndpoint("/sensors?user_id=" + token);
+            registerIndieID(token, NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND);
 
-            fetching<Sensor[]>(endpoint).then((sensorslist) => {
-                if (sensorslist) {
-                    setSensors(sensorslist.body)
+            const endpoint = returnEndpoint("/sensors?user_id=" + token);
+
+            fetching<Sensor[]>(endpoint)
+                .then((sensorslist) => {
+                    if (sensorslist) {
+                        setSensors(sensorslist.body);
+                    } else {
+                        setSensors(null);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching sensors:", error);
+                    setSensors(null);
+                })
+                .finally(() => {
                     setSensorsLoading(false);
-                }
-            })
+                });
         } else {
-            setSensors(null)
+            setSensors(null);
+            setSensorsLoading(false);  // <=== důležité!
         }
     }, [token]);
 

@@ -5,13 +5,14 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider } from "@/components/AuthProvider";
-import registerNNPushToken from 'native-notify';
+import registerNNPushToken, {registerIndieID} from 'native-notify';
 import { NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND } from "@/utils/enviroment";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  registerNNPushToken(NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND);
+    registerNNPushToken(NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND);
+
 
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -21,6 +22,8 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
     }
+
+
   }, [loaded]);
 
   if (!loaded) {
@@ -50,7 +53,8 @@ function ThemedApp() {
           <Stack.Screen name="+not-found" />
           <Stack.Screen name="auth" options={{ headerTitle: 'Authentication' }} />
           <Stack.Screen name="flowerpage" options={{ headerTitle: 'Flower information', headerStyle: {backgroundColor: theme.background}, headerTitleStyle: {color: theme.text}, headerTintColor: theme.tint }} />
-          <Stack.Screen name="flowertemplate" options={{ headerTitle: 'Select your flower template', headerStyle: {backgroundColor: theme.background}, headerTitleStyle: {color: theme.text}, headerTintColor: theme.tint }} />
+            <Stack.Screen name="flowertemplate" options={{ headerTitle: 'Select your flower template', headerStyle: {backgroundColor: theme.background}, headerTitleStyle: {color: theme.text}, headerTintColor: theme.tint }} />
+            <Stack.Screen name="createtemplate" options={{ headerTitle: 'Create your flower template', headerStyle: {backgroundColor: theme.background}, headerTitleStyle: {color: theme.text}, headerTintColor: theme.tint }} />
         </Stack>
       </>
   );

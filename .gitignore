@@ -38,3 +38,7 @@ yarn-error.*
 app-example
 /.idea/
 /.expo/
+/.expo/
+/.idea/
+/android/
+/ios/

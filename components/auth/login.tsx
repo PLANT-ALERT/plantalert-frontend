@@ -14,7 +14,7 @@ import {useAuth} from "@/components/AuthProvider"
 import {themesTypes, useTheme} from "@/components/ThemeProvider"
 
 export default function Login() {
-    const { control, setError ,handleSubmit, formState: { errors } } = useForm();
+    const { control, setError, handleSubmit, formState: { errors } } = useForm();
     const {setToken} = useAuth();
     const {theme} = useTheme();
 

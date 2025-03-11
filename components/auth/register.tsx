@@ -21,7 +21,7 @@ export default function Register({onSwitch}: { onSwitch: () => void }) {
 
     const onSubmit = async (data: FieldValues) => {
         let {username, password, email} = data;
-        let response = await fetching<{user_id: number}>(returnEndpoint('/auth/register'), true, {username: username, password: password, email: email});
+        let response = await fetching<{user_id: number}>(returnEndpoint('/auth/register'), "POST", {username: username, password: password, email: email});
         if (response?.code == 401) {
             setError("username", {type: "manual", message: "Username is already used"});
         } else if (response?.code == 402) {
@@ -32,7 +32,6 @@ export default function Register({onSwitch}: { onSwitch: () => void }) {
             router.back();
         }
     }
-
 
     return (
         <>

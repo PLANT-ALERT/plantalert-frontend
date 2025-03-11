@@ -1,5 +1,6 @@
 import {API_URL} from "@/utils/enviroment";
-export interface flower_GET {
+export interface oneFlower {
+    user_id: number;
     id: number;
     name: string;
     image?: string;
@@ -16,7 +17,12 @@ export interface flower_GET {
         min?: number;
         max?: number;
     }
+}
 
+export interface flower_GET {
+    user_flowers: oneFlower[];
+    default_flowers: oneFlower[];
+    other_flowers: oneFlower[];
 }
 
 export interface sensors_GET {

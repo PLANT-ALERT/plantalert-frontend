@@ -5,12 +5,12 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    Modal, SafeAreaView,
+    Modal, SafeAreaView, Image,
 } from "react-native";
 import {themesTypes, useTheme} from "@/components/ThemeProvider"
 import InfoCard from "@/components/InfoCard";
 import {translateToPercentage} from "@/utils/translator";
-import {flower_GET, Sensor_Response} from "@/hooks/sensor";
+import {oneFlower, flower_GET, Sensor_Response} from "@/hooks/sensor";
 import {returnEndpoint, fetching} from "@/utils/fetching";
 import {router, useLocalSearchParams} from 'expo-router';
 import FetchingTimer from "@/components/FetchingTimer";
@@ -26,7 +26,7 @@ export default function Flowerpage() {
     const [sensor, setSensor] = useState<Sensor_Response>();
     const [countdown, setCountdown] = useState(FETCH_INTERVAL);
     const {mac, sensor_id} = useLocalSearchParams();
-    const [flower, setFlower] = useState<flower_GET>();
+    const [flower, setFlower] = useState<oneFlower>();
     const [lostSensorModal, setLostSensorModal] = useState(false);
     const [deleteSensorModal, setDeleteSensorModal] = useState(false);
     const [graphs, setGraphs] = useState<bulkChart>();
@@ -52,7 +52,7 @@ export default function Flowerpage() {
             fetching<Sensor_Response>(returnEndpoint("/sensors/last_data/" + mac)).then((sensor) => {
                 if (sensor) setSensor(sensor.body);
             });
-            fetching<flower_GET>(returnEndpoint("/sensors/flower?sensor_id=" + sensor_id)).then((flower) => {
+            fetching<oneFlower>(returnEndpoint("/sensors/flower?sensor_id=" + sensor_id)).then((flower) => {
                 if (flower) setFlower(flower.body)
             })
             let chartSoil = await fetching<chart_GET[]>(returnEndpoint(`/chart/soil-humidity/${mac}/${time}`))
@@ -61,10 +61,10 @@ export default function Flowerpage() {
             let chartLight = await fetching<chart_GET[]>(returnEndpoint(`/chart/light/${mac}/${time}`))
 
             setGraphs({
-                light: chartLight?.body,
-                soil: chartSoil?.body,
-                temperature: chartTemp?.body,
-                humidity: chartHumi?.body,
+                light: chartLight == undefined || chartLight.code == 404 ? null : chartLight?.body,
+                soil: chartSoil == undefined || chartSoil.code == 404 ? null : chartSoil?.body,
+                temperature: chartTemp == undefined || chartTemp.code == 404 ? null : chartTemp?.body,
+                humidity: chartHumi == undefined || chartHumi.code == 404 ? null : chartHumi?.body,
             })
         };
 
@@ -87,33 +87,41 @@ export default function Flowerpage() {
             <FetchingTimer progress={translateToPercentage(FETCH_INTERVAL - countdown, 0, FETCH_INTERVAL)} max={100} />
             <ScrollView>
                 <View style={{display: "flex", flexDirection: "column", gap: 10, padding: 15 }}>
-                    <View style={styles.button}>
-                        <Text style={text.subtitle}>
-                            Using prefab: <Text style={text.title}>{flower?.name}</Text>
-                        </Text>
-                    </View>
+                    <TouchableOpacity onPress={() => {
+                        router.push({pathname: "/flowertemplate", params: {mac: mac, sensor_id: sensor_id, flower_id: flower ? flower.id : null}});
+                    }}  style={[styles.flowerView, {alignContent: "center"}]}>
+                        {flower && <Image
+                            style={{
+                                width: 30,
+                                height: 30,
+                                objectFit: "cover",
+                                borderRadius: 25,
+                                borderWidth: 1,
+                                borderColor: "green"
+                            }}
+                            source={require("@/assets/images/chinese-money-plant.png")}
+                            alt="Flower icon"
+                        />}
+                        <Text style={{fontSize: 15, textTransform: "uppercase", alignContent: "center", letterSpacing: 1.1, fontWeight: "600", color: "rgb(102, 102, 102)", paddingHorizontal: 10}}>{flower ? flower?.name : "select prefab"}</Text>
+                    </TouchableOpacity>
                     <View style={styles.infoCardContainer}>
-                        <InfoCard cardTitle="Humadity of air" recommendedValue={{min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")}} iconName="drop" value={`${sensor?.humidity} %`} />
-                        <InfoCard cardTitle="Humadity of soil" recommendedValue={{min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %") }}  iconName="drop" value={`${translateToPercentage(Number(sensor?.soil))} %`}/>
-                        <InfoCard cardTitle="Tempature" recommendedValue={{min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")}}  iconName="thermometer" value={`${sensor?.temp} °C`}/>
-                        <InfoCard cardTitle="Light" recommendedValue={{only_one: String(flower?.light + " lux")}} iconName="lightbulb" value={`${sensor?.light} lux`}/>
+                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={`${sensor?.humidity} %`} />
+                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={`${translateToPercentage(Number(sensor?.soil))} %`}/>
+                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={`${sensor?.temp} °C`}/>
+                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={`${sensor?.light} lux`}/>
                     </View>
                     <View style={{display: "flex", gap: 10}}>
                         {graphs &&
                             (
                                 <>
-                                    <Text style={text.subtitle}> Graf světla </Text>
-                                    {graphs?.light ? <Chart lines={graphs.light}/> : <Text>DATA NOT AVA</Text>}
-                                    <Text style={text.subtitle}> Graf vlhkosti zeminy </Text>
-
-                                    {graphs?.soil ? <Chart lines={graphs.soil}/> : <Text>DATA NOT AVA</Text>}
-                                    <Text style={text.subtitle}> Graf vlhkosti vzduchu </Text>
-
-                                    {graphs?.humidity ? <Chart lines={graphs.humidity}/> : <Text>DATA NOT AVA</Text>}
-
-                                    <Text style={text.subtitle}> Graf teploty </Text>
-
-                                    {graphs?.temperature ? <Chart lines={graphs.temperature}/> : <Text>DATA NOT AVA</Text>}
+                                    <Text style={text.subtitle}> Light </Text>
+                                    <Chart lines={graphs.light}/>
+                                    <Text style={text.subtitle}> Soil humidity </Text>
+                                    <Chart lines={graphs.soil}/>
+                                    <Text style={text.subtitle}> Air humidity</Text>
+                                    <Chart lines={graphs.humidity}/>
+                                    <Text style={text.subtitle}> Temp </Text>
+                                    <Chart lines={graphs.temperature}/>
                                 </>
                             )
                         }
@@ -121,11 +129,6 @@ export default function Flowerpage() {
                     </View>
                     {/*sensor settings*/}
                     <View style={{display: "flex", flexDirection: "column", gap: 10}}>
-                        <TouchableOpacity onPress={() => {
-                            router.push({pathname: "/flowertemplate", params: {mac: mac, sensor_id: sensor_id}});
-                        }} style={styles.button}>
-                            <Text style={text.title}>Flower template</Text>
-                        </TouchableOpacity>
                         <TouchableOpacity onPress={switchLostModal} style={styles.button}>
                             <Text style={text.title}>Lost sensor</Text>
                         </TouchableOpacity>
@@ -205,6 +208,15 @@ function returnStyles(theme: themesTypes) {
             borderColor: theme.border,
             padding: 15,
         },
+        flowerView: {
+            borderColor: "green",
+            borderRadius: 25,
+            borderWidth: 3,
+            padding: 2,
+            display: "flex",
+            flexDirection: "row",
+            alignSelf: "center",
+        }
     });
 
 }

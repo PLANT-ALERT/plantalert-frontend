@@ -8,8 +8,8 @@ export interface chart_GET {
 }
 
 export interface bulkChart {
-    humidity?: chart_GET[],
-    soil?: chart_GET[],
-    temperature?: chart_GET[],
-    light?: chart_GET[],
+    humidity: chart_GET[] | null,
+    soil: chart_GET[] | null,
+    temperature: chart_GET[] | null,
+    light: chart_GET[] | null,
 }

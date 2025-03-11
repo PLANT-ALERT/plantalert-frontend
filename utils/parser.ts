@@ -4,3 +4,7 @@ export const parseLocalParameterToNumber = (param: string | string[] | undefined
     }
     return param ? Number(param) : null; // Convert to number if it's a string
 };
+
+export function calculatePercentage(value: number, percentage: number): number {
+    return (value * percentage) / 100;
+}
