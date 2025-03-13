@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from "react";
+import React, {useState, useEffect} from "react";
 import {
   StyleSheet,
   SafeAreaView,
@@ -14,7 +14,6 @@ import { Collapsible } from "@/components/Collapsible";
 import { router } from "expo-router";
 import { storeData, getData } from "@/hooks/setStorageData";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useFocusEffect } from '@react-navigation/native';
 import { themesTypes, useTheme } from '@/components/ThemeProvider';
 import { useAuth } from "@/components/AuthProvider";
 import {fetching, returnEndpoint} from "@/utils/fetching";
@@ -42,11 +41,12 @@ export default function Settings() {
       }
     });
 
-    fetching<User_Interface>(returnEndpoint("/users/" + Number(token))).then((user) => {
-      if (user) setUser(user.body)
-    })
+    if (token)
+      fetching<User_Interface>(returnEndpoint("/users/" + Number(token))).then((user) => {
+        if (user) setUser(user.body)
+      })
 
-  }, [themeForm, languageForm]);
+  }, [themeForm, languageForm, token]);
 
 
   return (
@@ -73,7 +73,7 @@ export default function Settings() {
             <Collapsible iconName="moon" text="Theme">
               <Picker
                   selectedValue={themeForm}
-                  onValueChange={(itemValue, itemIndex) => {
+                  onValueChange={(itemValue) => {
                     storeData({ storeKey: "theme", value: itemValue! }).then(() => {
                       getData({ storeKey: "theme" }).then((r) => {
                         if (typeof r == "string") setThemeForm(r);
@@ -92,7 +92,7 @@ export default function Settings() {
             <Collapsible iconName="globe" text="Language">
               <Picker
                   selectedValue={languageForm}
-                  onValueChange={(itemValue, itemIndex) => {
+                  onValueChange={(itemValue) => {
                     storeData({ storeKey: "language", value: itemValue! }).then(
                         () => {
                           getData({ storeKey: "language" }).then((r) => {

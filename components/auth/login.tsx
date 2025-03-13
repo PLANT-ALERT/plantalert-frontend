@@ -14,7 +14,12 @@ import {useAuth} from "@/components/AuthProvider"
 import {themesTypes, useTheme} from "@/components/ThemeProvider"
 
 export default function Login() {
-    const { control, setError, handleSubmit, formState: { errors } } = useForm();
+    const { control, setError, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: {
+            username: "",
+            password: "",
+        }
+    });
     const {setToken} = useAuth();
     const {theme} = useTheme();
 
@@ -40,9 +45,8 @@ export default function Login() {
 
                 <Controller
                     control={control}
-                    name="username"
                     rules={{
-                        required: { value: true, message: "Username is required" },
+                        required: true,
                         minLength: { value: 3, message: "Username must be at least 3 characters" },
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
@@ -55,8 +59,9 @@ export default function Login() {
                             value={value}
                         />
                     )}
+                    name="username"
                 />
-                {/*@ts-ignore*/}
+
                 {errors.username && <Text style={styles.errorText}>{errors.username.message}</Text>}
 
                 {/* Password Input */}
@@ -66,7 +71,7 @@ export default function Login() {
                     rules={{
                         required: { value: true, message: "Password is required" },
                     }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, onBlur, value }}) => (
                         <TextInput
                             style={styles.input}
                             placeholder="Password"
@@ -78,7 +83,7 @@ export default function Login() {
                         />
                     )}
                 />
-                {/*@ts-ignore*/}
+
                 {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
                 <Button title="Submit" onPress={handleSubmit(onSubmit)} />

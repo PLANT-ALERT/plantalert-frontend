@@ -1,7 +1,7 @@
 import {useState} from "react";
 import Login from "@/components/auth/login"
 import Register from "@/components/auth/register"
-import {Keyboard, StyleSheet, TouchableWithoutFeedback, View, Switch, Text} from "react-native";
+import {Keyboard, StyleSheet, TouchableWithoutFeedback, View, Switch, Text, KeyboardAvoidingView, Platform} from "react-native";
 import {getTextStyles} from "@/constants/TextStyles"
 import {useTheme} from "@/components/ThemeProvider"
 
@@ -15,21 +15,17 @@ export default function Auth() {
     }
 
     return (
-        <TouchableWithoutFeedback onPress={() => {
-            Keyboard.dismiss()
-        }} >
-            <View style={styles.container}>
-                {register ? <Register onSwitch={toggleRegister}/> : <Login />}
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                {register ? <Register onSwitch={toggleRegister} /> : <Login />}
                 <View style={styles.switchContainer}>
-                    <Text style={textStyles.subtitle}>I dont have an account </Text>
+                    <Text style={textStyles.subtitle}>I don't have an account</Text>
                     <Switch
                         onValueChange={toggleRegister}
                         value={register}
                     />
                 </View>
-            </View>
-        </TouchableWithoutFeedback>
-    )
+        </KeyboardAvoidingView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -40,14 +36,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 20,
+        zIndex: 5000
     },
     switchContainer: {
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        paddingBottom: 20,
+        paddingBottom: 50,
         gap: 15,
     }
-
 });
