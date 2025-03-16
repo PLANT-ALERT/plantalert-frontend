@@ -21,7 +21,7 @@ export type TypeOfColor = {
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: 'rgb(248,244,244)',
     subtitle: '#333',
     tint: tintColorLight,
     icon: '#555555',

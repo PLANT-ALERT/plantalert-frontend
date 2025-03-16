@@ -38,7 +38,7 @@ export default function HomeScreen() {
                 });
         } else {
             setSensors(null);
-            setSensorsLoading(false);  // <=== důležité!
+            setSensorsLoading(false);
         }
     }, [token]);
 
@@ -73,6 +73,7 @@ export default function HomeScreen() {
         </SafeAreaView>
     );
 }
+
 
 const styles = StyleSheet.create({
     wrapper: {

@@ -1,11 +1,9 @@
-function getEnvVariable(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-    return value;
-}
+import Constants from "expo-constants";
 
-export let API_URL = getEnvVariable("EXPO_PUBLIC_API_URL");
-export let NOTIFICATION_ID_FIRST = getEnvVariable("EXPO_PUBLIC_NOTIFICATION_ID_FIRST");
-export let NOTIFICATION_ID_SECOND = getEnvVariable("EXPO_PUBLIC_NOTIFICATION_ID_SECOND");
+export const API_URL = Constants.expoConfig?.extra?.API_URL;
+export const NOTIFICATION_ID_FIRST = Constants.expoConfig?.extra?.NOTIFICATION_ID_FIRST;
+export const NOTIFICATION_ID_SECOND = Constants.expoConfig?.extra?.NOTIFICATION_ID_SECOND;
+
+if (!API_URL) console.warn("⚠️ Missing API_URL in Constants.extra");
+if (!NOTIFICATION_ID_FIRST) console.warn("⚠️ Missing NOTIFICATION_ID_FIRST in Constants.extra");
+if (!NOTIFICATION_ID_SECOND) console.warn("⚠️ Missing NOTIFICATION_ID_SECOND in Constants.extra");

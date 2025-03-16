@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     View,
     Text,
@@ -9,21 +9,16 @@ import {
     TouchableWithoutFeedback,
     Keyboard, Modal
 } from "react-native";
-import {useForm, Controller} from 'react-hook-form';
-import {Picker} from "@react-native-picker/picker";
-import {Wifi} from "@/types/wifi";
-import {health, fetching, loginWifi} from "@/utils/fetching";
+import {health, fetching, saveWifiLogin} from "@/utils/fetching";
 import {FieldValues} from "react-hook-form";
 import {themesTypes, useTheme} from "@/components/ThemeProvider";
 import {useLocalSearchParams, router} from "expo-router";
 import {macAddressToHotspotName} from "@/utils/mac"
+import SensorSetupForm from "@/components/SensorSetupForm";
 
 export default function ReconnectSensor() {
-    const [wifiModal, setWifiModal] = useState<boolean>(false);
-    const [wifiList, setWifiList] = useState<Array<Wifi>>();
-    const [wifiSSID, setWifiSSID] = useState<string | undefined>(undefined);
+    const [error, setError] = useState<string | null>(null);
     const [isConnectedToSensor, setIsConnectedToSensor] = useState(false);
-    const {control, handleSubmit, formState: {errors}} = useForm();
     const [checkConnectionInterval, setCheckConnectionInterval] = useState<NodeJS.Timeout | null>(null);
     const [checkWifiListInterval, setCheckWifiListInterval] = useState<NodeJS.Timeout | null>(null);
     const {mac} = useLocalSearchParams();
@@ -31,166 +26,42 @@ export default function ReconnectSensor() {
 
     let styles = returnStyle(theme);
 
-    const onSubmit = ( data : FieldValues ) => {
+    const onSubmit = async ( data : FieldValues ) => {
         console.log('Submitted Data:', data);
 
-        let res = loginWifi("http://192.168.4.1/connect", data.ssid, data.password);
+        let res = await saveWifiLogin("http://192.168.4.1/saveCredentials", data.ssid, data.password);
 
-        res.then((result) => {
-            if (result.status === 401) {
-                control._setErrors({password: {type: "validate", message: "Wrong password"}})
-            }
-        })
+        if (res.status === 401) {
+            setError("SSID or Password not filled up");
+        }
+
+        await fetching<null>("http://192.168.4.1/connect")
 
         router.push("/")
-    }
-
-    const toggleModal = () => {
-        setWifiModal(!wifiModal);
     }
 
     const checkConnection = async () => {
         try {
             const isConnected = await health("http://192.168.4.1/health");
             setIsConnectedToSensor(isConnected);
-            updateWifiList();
         } catch (error) {
             setIsConnectedToSensor(false);
         }
     };
 
-    const updateWifiList = async () => {
-        console.log("Checking list");
-        try {
-            const wifiRes = await fetching<Array<Wifi>>("http://192.168.4.1/ssid");
-            if (wifiRes) setWifiList(wifiRes.body);
-        } catch (err) {
-        }
-    };
 
     useEffect(() => {
         const connectionInterval = setInterval(checkConnection, 2500);
-        const wifiListInterval = setInterval(updateWifiList, 20000);
 
         setCheckConnectionInterval(connectionInterval);
-        setCheckWifiListInterval(wifiListInterval);
 
         return () => {
-            clearIntervals();
+            clearInterval(connectionInterval);
         }
     }, []);
 
-    const clearIntervals = () => {
-        if (checkConnectionInterval) {
-            clearInterval(checkConnectionInterval);
-            setCheckConnectionInterval(null);
-        }
-        if (checkWifiListInterval) {
-            clearInterval(checkWifiListInterval);
-            setCheckWifiListInterval(null);
-        }
-    };
-
     if (isConnectedToSensor) {
-        return (
-            <>
-                <TouchableWithoutFeedback onPress={() => {
-                    Keyboard.dismiss()
-                }}>
-                    <View style={styles.container}>
-                        <Text style={styles.title}>Enter your home WIFI credentials {isConnectedToSensor ? "true" : "false"}</Text>
-                        <View style={{marginTop: 10}}></View>
-                        <Controller
-                            control={control}
-                            name="ssid"
-                            defaultValue={wifiSSID} // Set initial value for the Controller
-                            rules={{
-                                min: { value: 1, message: "Select SSID" },
-                            }}
-                            render={({ field }) => (
-                                <TextInput
-                                    {...field}
-                                    value={field.value} // Bind the Controller's value
-                                    onPress={() => {
-                                        toggleModal();
-                                        field.onChange(wifiSSID); // Update the Controller's value
-                                    }}
-                                    style={styles.input}
-                                    placeholder="SSID"
-                                    editable={false} // Prevent manual input
-                                    placeholderTextColor={theme.text}
-                                />
-                            )}
-                        />
-                        {/*@ts-ignore*/}
-                        {errors.ssid && <Text style={styles.errorText}>{errors.ssid.message}</Text>}
-
-                        <Controller
-                            control={control}
-                            render={({ field })  => (
-                                <TextInput
-                                    {...field}
-                                    style={styles.input}
-                                    placeholder="Password"
-                                    placeholderTextColor={theme.text}
-                                />
-                            )}
-                            name="password"
-                            rules={{min: {value: 1, message:'You must enter password'}}}
-                        />
-                        {/*@ts-ignore*/}
-                        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-
-                        <Controller
-                            control={control}
-                            render={({ field })  => (
-                                <TextInput
-                                    {...field}
-                                    style={styles.input}
-                                    placeholder="Sensor name"
-                                    placeholderTextColor={theme.text}
-                                />
-                            )}
-                            name="name"
-                            rules={{min: {value: 1, message:'You must enter name'}}}
-                        />
-                        {/*@ts-ignore*/}
-                        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
-
-                        {/* Submit Butonu */}
-                        <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
-                    </View>
-
-                </TouchableWithoutFeedback>
-
-                <Modal
-                    visible={wifiModal}
-                    animationType="fade"
-                    transparent={true}
-                    onRequestClose={toggleModal}
-                >
-                    <View style={styles.modalBackground} >
-                        <View style={styles.modalContent}>
-                            <Text style={styles.title}>Choose your home wifi connection</Text>
-                            <Picker
-                                selectedValue={wifiSSID}
-                                onValueChange={(itemValue) => {
-                                    setWifiSSID(itemValue);
-                                }
-                                }
-                                itemStyle={{color: theme.text}}
-                            >
-                                {wifiList ? wifiList.map((wifi, index) => (
-                                    <Picker.Item key={index} label={`${wifi.security != 0 ? "🔒" : null} ${wifi.ssid} `} value={wifi.ssid}   />
-                                )): null}
-
-                            </Picker>
-                            <Button title="enter" onPress={toggleModal} />
-                        </View>
-                    </View>
-                </Modal>
-            </>
-        );
+        return <SensorSetupForm isConnectedToSensor={isConnectedToSensor} error={error} onSubmit={onSubmit}/>
     }
 
     return (

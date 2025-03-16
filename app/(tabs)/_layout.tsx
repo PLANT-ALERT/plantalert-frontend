@@ -3,7 +3,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import {useTheme, ThemeProvider} from "@/components/ThemeProvider";
+import {useTheme} from "@/components/ThemeProvider";
 
 export default function TabLayout() {
     let {theme} = useTheme();

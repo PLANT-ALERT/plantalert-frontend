@@ -2,13 +2,13 @@ import {useState} from "react";
 import Login from "@/components/auth/login"
 import Register from "@/components/auth/register"
 import {Keyboard, StyleSheet, TouchableWithoutFeedback, View, Switch, Text, KeyboardAvoidingView, Platform} from "react-native";
-import {getTextStyles} from "@/constants/TextStyles"
+import getGlobalStyles from "@/constants/styles"
 import {useTheme} from "@/components/ThemeProvider"
 
 export default function Auth() {
     const [register, setRegister] = useState<boolean>(false)
     let {theme} = useTheme();
-    let textStyles = getTextStyles(theme);
+    let globalStyles = getGlobalStyles(theme);
 
     const toggleRegister = () => {
         setRegister(!register)
@@ -18,7 +18,7 @@ export default function Auth() {
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 {register ? <Register onSwitch={toggleRegister} /> : <Login />}
                 <View style={styles.switchContainer}>
-                    <Text style={textStyles.subtitle}>I don't have an account</Text>
+                    <Text style={globalStyles.subtitle}>I don't have an account</Text>
                     <Switch
                         onValueChange={toggleRegister}
                         value={register}

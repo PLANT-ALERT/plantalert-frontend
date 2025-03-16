@@ -12,6 +12,7 @@ import {router} from "expo-router";
 import {fetching, returnEndpoint} from "@/utils/fetching";
 import {useAuth} from "@/components/AuthProvider"
 import {themesTypes, useTheme} from "@/components/ThemeProvider"
+import getGlobalStyles from "@/constants/styles";
 
 export default function Login() {
     const { control, setError, handleSubmit, formState: { errors } } = useForm({
@@ -22,6 +23,7 @@ export default function Login() {
     });
     const {setToken} = useAuth();
     const {theme} = useTheme();
+    let globalStyles = getGlobalStyles(theme);
 
     let styles = returnStyles(theme);
 
@@ -51,7 +53,7 @@ export default function Login() {
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            style={styles.input}
+                            style={globalStyles.textInput}
                             placeholder="Username"
                             placeholderTextColor="#999"
                             onBlur={onBlur}
@@ -67,13 +69,12 @@ export default function Login() {
                 {/* Password Input */}
                 <Controller
                     control={control}
-                    name="password"
                     rules={{
                         required: { value: true, message: "Password is required" },
                     }}
                     render={({ field: { onChange, onBlur, value }}) => (
                         <TextInput
-                            style={styles.input}
+                            style={globalStyles.textInput}
                             placeholder="Password"
                             placeholderTextColor="#999"
                             secureTextEntry
@@ -82,6 +83,7 @@ export default function Login() {
                             value={value}
                         />
                     )}
+                    name="password"
                 />
 
                 {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}

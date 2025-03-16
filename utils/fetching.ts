@@ -37,7 +37,6 @@ export const fetching = async <T>(address: string, method?: methods | string, bo
 export const health = async (address: string, timeout = 10000): Promise<boolean> => {
     try {
         const response = await fetch(address);
-
         if ((response as Response).status === 200) {
             return true;
         }
@@ -47,17 +46,14 @@ export const health = async (address: string, timeout = 10000): Promise<boolean>
     }
 };
 
-export const loginWifi = async (address: string, ssid: string, password: string) => {
+export const saveWifiLogin = async (address: string, ssid: string, password: string) => {
     try {
         const response = await fetch(address, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify({
-                ssid: ssid,
-                password: password,
-            }),
+            body: `ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`
         });
 
         if (response.status === 200) {
@@ -65,15 +61,13 @@ export const loginWifi = async (address: string, ssid: string, password: string)
             return { status: 200, MAC: data };
         }
 
-        if (response.status === 401) {
-            return { status: 401 }; // Bad password
+        if (response.status === 400) {
+            return { status: 400 }; // Bad password
         }
-
 
         return { status: 500 };
     } catch (error) {
         return { status: 500, error: error };
-
     }
 };
 

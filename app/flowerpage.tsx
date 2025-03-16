@@ -10,12 +10,12 @@ import {
 import {themesTypes, useTheme} from "@/components/ThemeProvider"
 import InfoCard from "@/components/InfoCard";
 import {translateToPercentage} from "@/utils/translator";
-import {oneFlower, flower_GET, Sensor_Response} from "@/hooks/sensor";
+import {oneFlower, Sensor_Response} from "@/hooks/sensor";
 import {returnEndpoint, fetching} from "@/utils/fetching";
 import {router, useLocalSearchParams} from 'expo-router';
 import FetchingTimer from "@/components/FetchingTimer";
-import {getTextStyles} from "@/constants/TextStyles"
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import getGlobalStyles from "@/constants/styles"
 import Chart from "@/components/Chart";
 import {chart_GET, bulkChart} from "@/types/chart"
 
@@ -31,11 +31,11 @@ export default function Flowerpage() {
     const [deleteSensorModal, setDeleteSensorModal] = useState(false);
     const [graphs, setGraphs] = useState<bulkChart>();
 
+    let globalStyles = getGlobalStyles(theme)
+
     let time = 2;
 
     let styles = returnStyles(theme);
-
-    let text = getTextStyles(theme);
 
     let switchLostModal = () => {
         setLostSensorModal(!lostSensorModal);
@@ -114,13 +114,13 @@ export default function Flowerpage() {
                         {graphs &&
                             (
                                 <>
-                                    <Text style={text.subtitle}> Light </Text>
+                                    <Text style={globalStyles.subtitle}> Light </Text>
                                     <Chart lines={graphs.light}/>
-                                    <Text style={text.subtitle}> Soil humidity </Text>
+                                    <Text style={globalStyles.subtitle}> Soil humidity </Text>
                                     <Chart lines={graphs.soil}/>
-                                    <Text style={text.subtitle}> Air humidity</Text>
+                                    <Text style={globalStyles.subtitle}> Air humidity</Text>
                                     <Chart lines={graphs.humidity}/>
-                                    <Text style={text.subtitle}> Temp </Text>
+                                    <Text style={globalStyles.subtitle}> Temp </Text>
                                     <Chart lines={graphs.temperature}/>
                                 </>
                             )
@@ -130,10 +130,10 @@ export default function Flowerpage() {
                     {/*sensor settings*/}
                     <View style={{display: "flex", flexDirection: "column", gap: 10}}>
                         <TouchableOpacity onPress={switchLostModal} style={styles.button}>
-                            <Text style={text.title}>Lost sensor</Text>
+                            <Text style={globalStyles.title}>Lost sensor</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={switchDeleteModal} style={styles.button}>
-                            <Text style={text.title}>Reset sensor</Text>
+                            <Text style={globalStyles.title}>Reset sensor</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -147,10 +147,10 @@ export default function Flowerpage() {
                 <View style={{position: "absolute", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)"}}>
                     <View style={{backgroundColor: theme.background, borderColor: theme.border, padding: 15, borderRadius: 15, borderWidth: 2, display: "flex", maxWidth: "65%", gap: 20}}>
                         <TouchableOpacity onPress={switchLostModal} style={{position: "absolute", right: 10, top: 10, zIndex: 100}}><IconSymbol name="xmark"/></TouchableOpacity>
-                        <Text style={[text.title, {color: theme.text}]}>Lost sensor</Text>
+                        <Text style={[globalStyles.title, {color: theme.text}]}>Lost sensor</Text>
                         <View style={{display: "flex", gap: 10}}>
-                            <Text style={{color: theme.text}}>Did your sensor lost wifi access? Or did you changed your wifi? Sensor will try to connect <Text style={text.bald}>10 times</Text>, then it will activate <Text style={text.bald}>lost mode</Text></Text>
-                            <Text style={{color: theme.text}}>You can recover sensor from lost mode by connecting it to his <Text style={text.bald}>hostpot</Text> and setup its wifi again</Text>
+                            <Text style={{color: theme.text}}>Did your sensor lost wifi access? Or did you changed your wifi? Sensor will try to connect <Text style={globalStyles.bald}>10 times</Text>, then it will activate <Text style={globalStyles.bald}>lost mode</Text></Text>
+                            <Text style={{color: theme.text}}>You can recover sensor from lost mode by connecting it to his <Text style={globalStyles.bald}>hostpot</Text> and setup its wifi again</Text>
                         </View>
                         <TouchableOpacity onPress={() => {
                             setLostSensorModal(false);
@@ -173,10 +173,10 @@ export default function Flowerpage() {
                 <View style={{position: "absolute", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)"}}>
                     <View style={{backgroundColor: theme.background, borderWidth: 5, borderColor: theme.border, padding: 15, borderRadius: 15, display: "flex", maxWidth: "65%", gap: 20}}>
                         <TouchableOpacity onPress={switchDeleteModal} style={{position: "absolute", right: 10, top: 10,zIndex: 100}}><IconSymbol name="xmark"/></TouchableOpacity>
-                        <Text style={text.title}>Remove sensor</Text>
+                        <Text style={globalStyles.title}>Remove sensor</Text>
                         <View style={{display: "flex", gap: 10}}>
                             <Text style={{color: theme.text}}>After pushing this button, sensor will delete from user database and reset itself</Text>
-                            <Text style={[text.bald, {color: theme.text}]}>THIS CANNOT BE REVERSED!</Text>
+                            <Text style={[globalStyles.bald, {color: theme.text}]}>THIS CANNOT BE REVERSED!</Text>
                         </View>
                         <TouchableOpacity style={[styles.button, {flex: 0}]}>
                             <Text style={{color: theme.text}}>RESET SENSOR</Text>

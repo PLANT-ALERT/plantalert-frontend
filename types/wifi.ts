@@ -1,4 +1,5 @@
 export interface Wifi {
     ssid: string;
-    security: number;
+    encryption: number;
 }
+
