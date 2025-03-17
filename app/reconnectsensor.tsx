@@ -19,8 +19,6 @@ import SensorSetupForm from "@/components/SensorSetupForm";
 export default function ReconnectSensor() {
     const [error, setError] = useState<string | null>(null);
     const [isConnectedToSensor, setIsConnectedToSensor] = useState(false);
-    const [checkConnectionInterval, setCheckConnectionInterval] = useState<NodeJS.Timeout | null>(null);
-    const [checkWifiListInterval, setCheckWifiListInterval] = useState<NodeJS.Timeout | null>(null);
     const {mac} = useLocalSearchParams();
     let {theme} = useTheme();
 
@@ -52,8 +50,6 @@ export default function ReconnectSensor() {
 
     useEffect(() => {
         const connectionInterval = setInterval(checkConnection, 2500);
-
-        setCheckConnectionInterval(connectionInterval);
 
         return () => {
             clearInterval(connectionInterval);

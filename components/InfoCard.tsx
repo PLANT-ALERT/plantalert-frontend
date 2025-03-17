@@ -7,7 +7,7 @@ import {themesTypes, useTheme} from "@/components/ThemeProvider";
 import {IconSymbolName} from "@/components/ui/IconSymbol"
 
 
-const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: IconSymbolName, cardTitle: string, value?: string, recommendedValue?: {
+const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: IconSymbolName, cardTitle: string, value: string | null, recommendedValue?: {
         min?: string | null
         max?: string | null
         only_one?: string | null
@@ -32,7 +32,7 @@ const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: Ico
                     <View style={{display: "flex", flexDirection: "column"}}>
                     <Text style={styles.title}>{cardTitle}</Text>
                     {value ?
-                        <Text style={styles.value}>{value}</Text> : <ActivityIndicator style={{alignItems: "flex-start"}} size="small" color={theme.tabIconSelected}/>
+                        <Text style={styles.value}>{value ? value : "Sensor didnt sent any data"}</Text> : <ActivityIndicator style={{alignItems: "flex-start"}} size="small" color={theme.tabIconSelected}/>
                     }
                     </View>
                 </View>

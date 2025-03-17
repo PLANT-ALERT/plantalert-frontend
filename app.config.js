@@ -26,7 +26,12 @@ export default {
                 "android.permission.ACCESS_WIFI_STATE",
                 "android.permission.ACCESS_FINE_LOCATION"
             ],
-            package: "com.plantalert.plantalert"
+            package: "com.plantalert.plantalert",
+            env: {
+                API_URL: process.env.EXPO_PUBLIC_API_URL,
+                NOTIFICATION_ID_FIRST: process.env.EXPO_PUBLIC_NOTIFICATION_ID_FIRST,
+                NOTIFICATION_ID_SECOND: process.env.EXPO_PUBLIC_NOTIFICATION_ID_SECOND,
+            }
         },
         web: {
             bundler: "metro",

@@ -7,14 +7,10 @@ enum methods {
     DELETE = "DELETE",
 }
 
-export const fetching = async <T>(address: string, method?: methods | string, body? : object): Promise<{body: T, code: number} | undefined> => {
-    if (!method) {
-        method = "GET"
-    }
-
+export const fetching = async <T>(address: string, method: methods | string = "GET", body? : object): Promise<{body: T, code: number} | undefined> => {
     try {
         let response = await fetch(address, {
-            method: method || 'GET',
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },

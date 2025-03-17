@@ -66,7 +66,7 @@ export default function HomeScreen() {
             <ScrollView>
                 <View style={styles.wrapper}>
                     {sensors.map((sensor, index) => (
-                        <Plant key={index} sensor={sensor} />
+                            <Plant key={index} sensor={sensor} />
                     ))}
                 </View>
             </ScrollView>

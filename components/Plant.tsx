@@ -32,7 +32,6 @@ export default function PlantCard(props: {sensor: Sensor}) {
         <>
             <TouchableOpacity
                 onPress={() => {
-                    if (humidity)
                     router.push({pathname: "/flowerpage", params: {mac: mac_address, flower_id: flower_id, sensor_id: id}})
                 }}
                 style={styles.card}
@@ -48,8 +47,8 @@ export default function PlantCard(props: {sensor: Sensor}) {
                         <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age ? String(getDate(age)) : `${String(created_at)}`}</Text>
                     </View>
                 </View>
-                {humidity && (
-                    <ProgressBar color={"white"} progress={translateToPercentage(humidity, 0, 100)} max={100} />
+                {(humidity && humidity > 0) && (
+                    <ProgressBar color={"white"} progress={translateToPercentage(humidity ? humidity : 0, 0, 100)} max={100} />
                 )}
             </TouchableOpacity>
         </>

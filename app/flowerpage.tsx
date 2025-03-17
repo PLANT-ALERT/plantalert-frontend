@@ -25,7 +25,7 @@ export default function Flowerpage() {
     const {theme} = useTheme();
     const [sensor, setSensor] = useState<Sensor_Response>();
     const [countdown, setCountdown] = useState(FETCH_INTERVAL);
-    const {mac, sensor_id} = useLocalSearchParams();
+    const {mac, sensor_id, flower_id} = useLocalSearchParams();
     const [flower, setFlower] = useState<oneFlower>();
     const [lostSensorModal, setLostSensorModal] = useState(false);
     const [deleteSensorModal, setDeleteSensorModal] = useState(false);
@@ -49,12 +49,21 @@ export default function Flowerpage() {
 
     useEffect(() => {
         fetchData = async () => {
-            fetching<Sensor_Response>(returnEndpoint("/sensors/last_data/" + mac)).then((sensor) => {
-                if (sensor) setSensor(sensor.body);
+            fetching<Sensor_Response>(returnEndpoint("/sensors/last_data/" + mac)).then((sensorVariable) => {
+                if (sensorVariable) {
+                    setSensor(sensorVariable.body)
+                }
             });
-            fetching<oneFlower>(returnEndpoint("/sensors/flower?sensor_id=" + sensor_id)).then((flower) => {
-                if (flower) setFlower(flower.body)
+            if (flower_id != null)
+            fetching<oneFlower>(returnEndpoint("/flower/" + flower_id)).then((
+                flowerVariable
+            ) => {
+                if (flowerVariable) {
+                        setFlower(flowerVariable.body)
+                }
+
             })
+
             let chartSoil = await fetching<chart_GET[]>(returnEndpoint(`/chart/soil-humidity/${mac}/${time}`))
             let chartTemp = await fetching<chart_GET[]>(returnEndpoint(`/chart/temperature/${mac}/${time}`))
             let chartHumi = await fetching<chart_GET[]>(returnEndpoint(`/chart/air-humidity/${mac}/${time}`))
@@ -102,13 +111,13 @@ export default function Flowerpage() {
                             source={require("@/assets/images/chinese-money-plant.png")}
                             alt="Flower icon"
                         />}
-                        <Text style={{fontSize: 15, textTransform: "uppercase", alignContent: "center", letterSpacing: 1.1, fontWeight: "600", color: "rgb(102, 102, 102)", paddingHorizontal: 10}}>{flower ? flower?.name : "select prefab"}</Text>
+                        <Text style={{fontSize: 15, textTransform: "uppercase", alignContent: "center", letterSpacing: 1.1, fontWeight: "600", color: "rgb(102, 102, 102)", paddingHorizontal: 10}}>{flower ? flower.name : "select prefab"}</Text>
                     </TouchableOpacity>
                     <View style={styles.infoCardContainer}>
-                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={`${sensor?.humidity} %`} />
-                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={`${translateToPercentage(Number(sensor?.soil))} %`}/>
-                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={`${sensor?.temp} °C`}/>
-                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={`${sensor?.light} lux`}/>
+                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={sensor?.humidity ? `${sensor?.humidity} %` : null} />
+                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={sensor?.soil ? `${translateToPercentage(Number(sensor?.soil))} %` : null}/>
+                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={sensor?.temp ? `${sensor?.temp} °C` : null}/>
+                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={sensor?.light ? `${sensor?.light} lux` : null}/>
                     </View>
                     <View style={{display: "flex", gap: 10}}>
                         {graphs &&
