@@ -1,10 +1,9 @@
 import React from 'react';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
-// import {calculatePercentage} from "@/utils/parser"
-
 import {themesTypes, useTheme} from "@/components/ThemeProvider";
 import {IconSymbolName} from "@/components/ui/IconSymbol"
+import GradiatedProgressBar from "@/components/ProgressBarValued";
 
 
 const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: IconSymbolName, cardTitle: string, value: string | null, recommendedValue?: {
@@ -15,12 +14,6 @@ const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: Ico
 }) => {
     let {theme} = useTheme();
     let styles = returnStyles(theme);
-
-    // let precenteges = {
-    //     only_one: recommendedValue.only_one ? calculatePercentage(Number(recommendedValue.only_one), 10) : null,
-    //     min: recommendedValue.min ? calculatePercentage(Number(recommendedValue.min), 10) : null,
-    //     max: recommendedValue.max ? calculatePercentage(Number(recommendedValue.max), 10) : null,
-    // }
 
     return (
         <View style={styles.card}>
@@ -37,32 +30,18 @@ const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: Ico
                     </View>
                 </View>
 
-                {recommendedValue ?
-                    <View style={{display: "flex", flexDirection: "column"}}>
-                        <Text style={styles.recommendedValue}>{returnTextForRecommendedValue(recommendedValue)}</Text>
-                    </View>
-                : null}
+                {/*{(recommendedValue && recommendedValue.min && recommendedValue.max && value) ?*/}
+                {/*    <GradiatedProgressBar progress={} min={recommendedValue.min} max={recommendedValue.max} }/>*/}
+                {/*: null}*/}
             </View>
         </View>
     );
 };
 
-function returnTextForRecommendedValue(recommendedValue: {
-    min?: string | null
-    max?: string | null
-    only_one?: string | null
-}) {
-    if (recommendedValue.min && recommendedValue.max) {
-        return `(${recommendedValue.min}) - (${recommendedValue.max})`;
-    } else {
-        return `(${recommendedValue.only_one})`;
-    }
-}
-
 function returnStyles(theme: themesTypes) {
     return StyleSheet.create({
         card: {
-            backgroundColor: theme.background,
+            backgroundColor: theme.card,
             borderRadius: 10,
             borderWidth: 2,
             borderColor: theme.border,
@@ -88,6 +67,7 @@ function returnStyles(theme: themesTypes) {
         },
         recommendedValue: {
             fontSize: 15,
+            color: theme.text,
         },
     });
 }

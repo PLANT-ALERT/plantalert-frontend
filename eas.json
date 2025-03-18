@@ -7,22 +7,12 @@
     "preview": {
       "android": {
         "buildType": "apk"
-      }
-    },
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "production": {
-      "autoIncrement": true
-    },
-    "ios-simulator": {
-      "ios": {
-        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL":"https://plantalert-api.node.jakubgrezl.cz",
+        "EXPO_PUBLIC_NOTIFICATION_ID_FIRST":"27817",
+        "EXPO_PUBLIC_NOTIFICATION_ID_SECOND":"S3urzi5cFmMtk7XS820uLg"
       }
     }
-  },
-  "submit": {
-    "production": {}
   }
 }

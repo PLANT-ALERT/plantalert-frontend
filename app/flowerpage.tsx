@@ -18,6 +18,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import getGlobalStyles from "@/constants/styles"
 import Chart from "@/components/Chart";
 import {chart_GET, bulkChart} from "@/types/chart"
+import LastConnectionStatus from "@/components/LastConnectionStatus";
 
 let FETCH_INTERVAL = 20;
 
@@ -25,6 +26,7 @@ export default function Flowerpage() {
     const {theme} = useTheme();
     const [sensor, setSensor] = useState<Sensor_Response>();
     const [countdown, setCountdown] = useState(FETCH_INTERVAL);
+    const [lastDataTime, setLastDataTime] = useState<Date>();
     const {mac, sensor_id, flower_id} = useLocalSearchParams();
     const [flower, setFlower] = useState<oneFlower>();
     const [lostSensorModal, setLostSensorModal] = useState(false);
@@ -33,7 +35,7 @@ export default function Flowerpage() {
 
     let globalStyles = getGlobalStyles(theme)
 
-    let time = 2;
+    let time = 12;
 
     let styles = returnStyles(theme);
 
@@ -51,7 +53,9 @@ export default function Flowerpage() {
         fetchData = async () => {
             fetching<Sensor_Response>(returnEndpoint("/sensors/last_data/" + mac)).then((sensorVariable) => {
                 if (sensorVariable) {
+                    console.log("sensorVariable", sensorVariable.body);
                     setSensor(sensorVariable.body)
+                    setLastDataTime(new Date(sensorVariable.body.time))
                 }
             });
             if (flower_id != null)
@@ -114,23 +118,23 @@ export default function Flowerpage() {
                         <Text style={{fontSize: 15, textTransform: "uppercase", alignContent: "center", letterSpacing: 1.1, fontWeight: "600", color: "rgb(102, 102, 102)", paddingHorizontal: 10}}>{flower ? flower.name : "select prefab"}</Text>
                     </TouchableOpacity>
                     <View style={styles.infoCardContainer}>
-                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={sensor?.humidity ? `${sensor?.humidity} %` : null} />
-                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={sensor?.soil ? `${translateToPercentage(Number(sensor?.soil))} %` : null}/>
-                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={sensor?.temp ? `${sensor?.temp} °C` : null}/>
-                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={sensor?.light ? `${sensor?.light} lux` : null}/>
+                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={sensor?.humidity != null  ? `${sensor?.humidity} %` : null} />
+                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={sensor?.soil != null  ? `${translateToPercentage(Number(sensor?.soil), 350, 600)} %` : null}/>
+                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={sensor?.temp != null  ? `${sensor?.temp} °C` : null}/>
+                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={sensor?.light != null ? `${sensor?.light} lux` : null}/>
                     </View>
                     <View style={{display: "flex", gap: 10}}>
                         {graphs &&
                             (
                                 <>
                                     <Text style={globalStyles.subtitle}> Light </Text>
-                                    <Chart lines={graphs.light}/>
+                                    <Chart suffix="lux" lines={graphs.light}/>
                                     <Text style={globalStyles.subtitle}> Soil humidity </Text>
-                                    <Chart lines={graphs.soil}/>
+                                    <Chart isHumidity suffix="%" lines={graphs.soil}/>
                                     <Text style={globalStyles.subtitle}> Air humidity</Text>
-                                    <Chart lines={graphs.humidity}/>
+                                    <Chart suffix="%" lines={graphs.humidity}/>
                                     <Text style={globalStyles.subtitle}> Temp </Text>
-                                    <Chart lines={graphs.temperature}/>
+                                    <Chart suffix="°C" lines={graphs.temperature}/>
                                 </>
                             )
                         }
@@ -147,6 +151,9 @@ export default function Flowerpage() {
                     </View>
                 </View>
             </ScrollView>
+            {lastDataTime ? (
+                <LastConnectionStatus date={lastDataTime}/>
+            ) : null}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -193,7 +200,6 @@ export default function Flowerpage() {
                     </View>
                 </View>
             </Modal>
-
         </SafeAreaView>
 
     );

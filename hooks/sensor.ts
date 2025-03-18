@@ -38,6 +38,7 @@ export interface sensors_GET {
 }
 
 export interface Sensor_Response {
+    time: string;
     humidity: number,
     light: number,
     soil: number,

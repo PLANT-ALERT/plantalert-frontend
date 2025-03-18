@@ -3,11 +3,7 @@ import {
     View,
     Text,
     StyleSheet,
-    Button,
-    TextInput,
     ActivityIndicator,
-    TouchableWithoutFeedback,
-    Keyboard, Modal
 } from "react-native";
 import {health, fetching, saveWifiLogin} from "@/utils/fetching";
 import {FieldValues} from "react-hook-form";
@@ -74,6 +70,7 @@ function returnStyle(theme : themesTypes) {
     return StyleSheet.create({
         container: {
             flex: 1,
+            backgroundColor: theme.background,
             justifyContent: "center",
             alignItems: "center",
             padding: 20,

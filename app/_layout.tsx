@@ -72,6 +72,12 @@ function ThemedApp() {
                     headerTitleStyle: {color: theme.text},
                     headerTintColor: theme.tint
                 }}/>
+                <Stack.Screen name="reconnectsensor" options={{
+                    headerTitle: 'Reconnect sensor',
+                    headerStyle: {backgroundColor: theme.background},
+                    headerTitleStyle: {color: theme.text},
+                    headerTintColor: theme.tint
+                }}/>
             </Stack>
         </>
     );

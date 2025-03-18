@@ -1,12 +1,15 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
+import {useTheme} from '@/components/ThemeProvider';
 
 const ProgressBar = ({progress = 0, max = 100, color = ""}) => {
     const progressWidth = Math.max(0, Math.min(progress / max, 1)) * 100;
 
+    const {theme} = useTheme();
+
     return (
-        <View style={styles.container}>
-            <View style={[styles.barBackground, {backgroundColor: color}]}>
+        <View style={[styles.container, { borderColor: theme.border}]}>
+            <View style={[styles.barBackground, {backgroundColor: theme.background}]}>
                 <View style={[styles.barForeground, {width: `${progressWidth}%`}]}>
 
                 </View>
@@ -21,10 +24,8 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: 'center',
         overflow: 'visible',
-        borderRadius: 12,
-        backgroundColor: '#ffffff',
+        borderRadius: 15,
         borderWidth: 1,
-        borderColor: '#ddd',
         shadowColor: '#000',
         shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.1,
@@ -37,7 +38,6 @@ const styles = StyleSheet.create({
         width: 25,
         transform: "translate(25%, -75%)",
         zIndex: 2,
-
     },
     barBackground: {
         overflow: 'visible',

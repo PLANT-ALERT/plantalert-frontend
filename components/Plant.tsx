@@ -23,7 +23,6 @@ export default function PlantCard(props: {sensor: Sensor}) {
         fetching<number>(returnEndpoint("/sensors/last_data/humidity/") + mac_address).then((humidity) => {
              if (humidity) {
                  setHumidity(humidity.body)
-                 console.log(humidity?.code)
              }
         })
     }, [mac_address]);
@@ -47,9 +46,9 @@ export default function PlantCard(props: {sensor: Sensor}) {
                         <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age ? String(getDate(age)) : `${String(created_at)}`}</Text>
                     </View>
                 </View>
-                {(humidity && humidity > 0) && (
-                    <ProgressBar color={"white"} progress={translateToPercentage(humidity ? humidity : 0, 0, 100)} max={100} />
-                )}
+                {(humidity && humidity > 0) ? (
+                    <ProgressBar color={"white"} progress={translateToPercentage(humidity, 350, 575)} />
+                ) : null}
             </TouchableOpacity>
         </>
     );
@@ -66,7 +65,7 @@ function returnStyles(theme: themesTypes) {
             flexDirection: 'column',
             padding: 10,
             borderRadius: 12,
-            backgroundColor: theme.background,
+            backgroundColor: theme.card,
             borderWidth: 2,
             borderColor: theme.border,
             shadowColor: theme.shadow,
