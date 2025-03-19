@@ -1,4 +1,5 @@
 import {API_URL} from "@/utils/enviroment";
+import axios from 'axios';
 
 enum methods {
     GET = "GET",
@@ -32,8 +33,8 @@ export const fetching = async <T>(address: string, method: methods | string = "G
 
 export const health = async (address: string, timeout = 10000): Promise<boolean> => {
     try {
-        const response = await fetch(address);
-        if ((response as Response).status === 200) {
+        const response = await axios.get(address);
+        if (response.status === 200) {
             return true;
         }
         return false;
@@ -44,26 +45,30 @@ export const health = async (address: string, timeout = 10000): Promise<boolean>
 
 export const saveWifiLogin = async (address: string, ssid: string, password: string) => {
     try {
-        const response = await fetch(address, {
-            method: 'POST',
+        const response = await axios.post(address, `ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`
+            }
         });
 
+        // Check if response is successful
         if (response.status === 200) {
-            const data = await response.text(); // Wait for the response text
+            const data = response.data; // Axios automatically parses the response body
             return { status: 200, MAC: data };
         }
 
+        // Handle other status codes
         if (response.status === 400) {
             return { status: 400 }; // Bad password
         }
 
         return { status: 500 };
     } catch (error) {
-        return { status: 500, error: error };
+        // Axios has built-in error handling with detailed error information
+        if (axios.isAxiosError(error)) {
+            return { status: 500, error: error.message };
+        }
+        return { status: 500, error: 'Unknown error' };
     }
 };
 

@@ -18,6 +18,7 @@ export default function PlantCard(props: {sensor: Sensor}) {
     let [humidity, setHumidity] = useState<number>();
     let {theme} = useTheme();
     let styles = returnStyles(theme)
+    let date = new Date(created_at);
 
     useEffect(() => {
         fetching<number>(returnEndpoint("/sensors/last_data/humidity/") + mac_address).then((humidity) => {
@@ -43,11 +44,11 @@ export default function PlantCard(props: {sensor: Sensor}) {
                     />
                     <View style={{ display: "flex", flexDirection: "column" }}>
                         <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{name}</Text>
-                        <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age ? String(getDate(age)) : `${String(created_at)}`}</Text>
+                        <Text style={{ fontSize: 17, fontWeight: '500', color: theme.subtitle, fontStyle: 'italic'}}>Zasazeno: {age ? String(getDate(age)) : `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}`}</Text>
                     </View>
                 </View>
                 {(humidity && humidity > 0) ? (
-                    <ProgressBar color={"white"} progress={translateToPercentage(humidity, 350, 575)} />
+                    <ProgressBar color={"white"} progress={translateToPercentage(humidity, 280, 600)} />
                 ) : null}
             </TouchableOpacity>
         </>

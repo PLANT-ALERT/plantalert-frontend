@@ -13,8 +13,8 @@ import {registerSensor} from "@/hooks/user";
 import {IconSymbol} from "@/components/ui/IconSymbol";
 import {themesTypes, useTheme} from "@/components/ThemeProvider";
 import {useAuth} from "@/components/AuthProvider"
-import * as Network from 'expo-network';
 import SensorSetupForm from "@/components/SensorSetupForm";
+import axios from "axios";
 
 export default function AddSenzor() {
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export default function AddSenzor() {
         if (res.status === 200 && mac && token) {
             setSavedWifi(true)
             setName(data.name)
-            await fetch("http://192.168.4.1/connect")
+            await axios.get("http://192.168.4.1/connect")
 
         }
     };
@@ -57,13 +57,13 @@ export default function AddSenzor() {
             try {
                 const isConnected = await health("http://192.168.4.1/health");
                 setIsConnectedToSensor(isConnected);
-                const macResponse = await fetch("http://192.168.4.1/mac", {
-                    method: 'GET',
+                const macResponse = await axios.get("http://192.168.4.1/mac", {
                     headers: {
                         'Accept': 'text/plain',
                     },
                 })
-                setMac(await macResponse.text())
+                setMac(macResponse.data)
+
             } catch (error) {
                 if (!savedWifi)
                     setIsConnectedToSensor(false);

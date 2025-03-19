@@ -15,13 +15,11 @@ export default function HomeScreen() {
     let {theme} = useTheme();
     let {token} = useAuth();
 
+    let interval: NodeJS.Timeout;
+
     useEffect(() => {
-        if (token) {
-            registerIndieID(token, NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND);
-
-            const endpoint = returnEndpoint("/sensors?user_id=" + token);
-
-            fetching<Sensor[]>(endpoint)
+        const fetchSensors = () => {
+            fetching<Sensor[]>(returnEndpoint("/sensors?user_id=" + token))
                 .then((sensorslist) => {
                     if (sensorslist) {
                         setSensors(sensorslist.body);
@@ -36,9 +34,19 @@ export default function HomeScreen() {
                 .finally(() => {
                     setSensorsLoading(false);
                 });
+        }
+        if (token) {
+            registerIndieID(token, NOTIFICATION_ID_FIRST, NOTIFICATION_ID_SECOND);
+
+            fetchSensors();
+            interval = setInterval(fetchSensors, 10000);
         } else {
             setSensors(null);
             setSensorsLoading(false);
+        }
+
+        return () => {
+            clearInterval(interval)
         }
     }, [token]);
 

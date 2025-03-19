@@ -6,10 +6,10 @@ import {IconSymbolName} from "@/components/ui/IconSymbol"
 import GradiatedProgressBar from "@/components/ProgressBarValued";
 
 
-const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: IconSymbolName, cardTitle: string, value: string | null, recommendedValue?: {
-        min?: string | null
-        max?: string | null
-        only_one?: string | null
+const InfoCard = ({iconName, cardTitle, value, recommendedValue, carne}: {iconName: IconSymbolName, carne: string ,cardTitle: string, value: number | null, recommendedValue?: {
+        min?: number | null
+        max?: number | null
+        only_one?: number | null
     } | null
 }) => {
     let {theme} = useTheme();
@@ -25,14 +25,26 @@ const InfoCard = ({iconName, cardTitle, value, recommendedValue}: {iconName: Ico
                     <View style={{display: "flex", flexDirection: "column"}}>
                     <Text style={styles.title}>{cardTitle}</Text>
                     {value ?
-                        <Text style={styles.value}>{value ? value : "Sensor didnt sent any data"}</Text> : <ActivityIndicator style={{alignItems: "flex-start"}} size="small" color={theme.tabIconSelected}/>
+                        <Text style={styles.value}>{value ? value + carne : "Sensor didnt sent any data"}</Text> : <ActivityIndicator style={{alignItems: "flex-start"}} size="small" color={theme.tabIconSelected}/>
                     }
                     </View>
-                </View>
 
-                {/*{(recommendedValue && recommendedValue.min && recommendedValue.max && value) ?*/}
-                {/*    <GradiatedProgressBar progress={} min={recommendedValue.min} max={recommendedValue.max} }/>*/}
-                {/*: null}*/}
+                </View>
+                <View style={{width: "50%", flexDirection: "column"}}>
+                    {(recommendedValue && recommendedValue.min && recommendedValue.max && value) ?
+                        <>
+                            <GradiatedProgressBar progress={value} min={recommendedValue.min} max={recommendedValue.max} />
+                            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                                <Text style={styles.value}>{recommendedValue.min + carne}</Text>
+                                <Text style={styles.value}>{recommendedValue.max + carne}</Text>
+                            </View>
+                        </>
+                        : null}
+                    {(recommendedValue && recommendedValue.only_one) ?
+                        <Text style={styles.recommendedValue}>recommended {recommendedValue.only_one} lux</Text>
+                        : null }
+
+                </View>
             </View>
         </View>
     );

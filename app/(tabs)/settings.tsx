@@ -20,7 +20,6 @@ import {fetching, returnEndpoint} from "@/utils/fetching";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
-  const [languageForm, setLanguageForm] = useState<string>();
   const [themeForm, setThemeForm] = useState<string>();
   const {theme, toggleTheme} = useTheme();
   const {token, removeToken} = useAuth();
@@ -28,12 +27,6 @@ export default function Settings() {
   let styles = returnStyle(theme);
 
   useEffect(() => {
-    getData({ storeKey: "language" }).then((r) => {
-      if (typeof r === "string") {
-        setLanguageForm(r);
-      }
-    });
-
     getData({ storeKey: "theme" }).then((r) => {
       if (typeof r === "string") {
         setThemeForm(r);
@@ -46,7 +39,7 @@ export default function Settings() {
         if (user) setUser(user.body)
       })
 
-  }, [themeForm, languageForm, token]);
+  }, [themeForm, token]);
 
 
   return (
@@ -89,31 +82,16 @@ export default function Settings() {
                 <Picker.Item label="System" value="auto" />
               </Picker>
             </Collapsible>
-            <Collapsible iconName="globe" text="Language">
-              <Picker
-                  selectedValue={languageForm}
-                  onValueChange={(itemValue) => {
-                    storeData({ storeKey: "language", value: itemValue! }).then(
-                        () => {
-                          getData({ storeKey: "language" }).then((r) => {
-                            if (typeof r == "string") setLanguageForm(r);
-                          });
-                        }
-                    );
-                    setLanguageForm(itemValue);
-                  }}
-                  itemStyle={{ color: theme.text }}
-              >
-                <Picker.Item label="Czech" value="czech" />
-                <Picker.Item label="English" value="english" />
-                <Picker.Item label="System" value="auto" />
-              </Picker>
-            </Collapsible>
+
             {token ?
-                (<TouchableOpacity style={styles.row}  onPress={() => {
-                  removeToken();
-                  setUser(null);
-                }}>
+                (
+
+
+
+                    <TouchableOpacity style={styles.row}  onPress={() => {
+                        removeToken();
+                        setUser(null);
+                      }}>
                   <View style={styles.rowIcon}>
                     <IconSymbol name="rectangle.portrait.and.arrow.right" size={20}/>
                   </View>
@@ -121,7 +99,13 @@ export default function Settings() {
                     Sign out
                   </Text>
 
-                </TouchableOpacity>) : (
+                </TouchableOpacity>
+
+
+
+
+
+                ) : (
                     <TouchableOpacity style={styles.row}  onPress={() => {
                       router.push("/auth");
                     }}>
@@ -135,6 +119,8 @@ export default function Settings() {
                     </TouchableOpacity>
                 )
             }
+
+
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -204,7 +190,6 @@ function returnStyle(theme : themesTypes) {
       height: 50,
       backgroundColor: theme.card,
       borderRadius: 8,
-      marginBottom: 12,
       paddingHorizontal: 12,
       borderWidth: 2,
       borderColor: theme.border,

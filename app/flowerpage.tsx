@@ -47,6 +47,11 @@ export default function Flowerpage() {
         setDeleteSensorModal(!deleteSensorModal);
     }
 
+    const fetchSensorReset = () => {
+        fetching<null>(returnEndpoint("/sensors/" + mac), "DELETE");
+        router.back();
+    }
+
     let fetchData: () => void;
 
     useEffect(() => {
@@ -118,10 +123,10 @@ export default function Flowerpage() {
                         <Text style={{fontSize: 15, textTransform: "uppercase", alignContent: "center", letterSpacing: 1.1, fontWeight: "600", color: "rgb(102, 102, 102)", paddingHorizontal: 10}}>{flower ? flower.name : "select prefab"}</Text>
                     </TouchableOpacity>
                     <View style={styles.infoCardContainer}>
-                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: String(flower?.air_humidity?.min + " %"), max: String(flower?.air_humidity?.max  + " %")} : null} iconName="drop" value={sensor?.humidity != null  ? `${sensor?.humidity} %` : null} />
-                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: String(flower?.soil_humidity?.min  + " %"), max: String(flower?.soil_humidity?.max  + " %")}: null}  iconName="drop" value={sensor?.soil != null  ? `${translateToPercentage(Number(sensor?.soil), 350, 600)} %` : null}/>
-                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: String(flower?.air_temperature?.min  + " °C"), max: String(flower?.air_temperature?.max  + " °C")} : null}  iconName="thermometer" value={sensor?.temp != null  ? `${sensor?.temp} °C` : null}/>
-                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: String(flower?.light + " lux")} : null} iconName="lightbulb" value={sensor?.light != null ? `${sensor?.light} lux` : null}/>
+                        <InfoCard cardTitle="Humadity of air" recommendedValue={flower ? {min: flower?.air_humidity?.min, max: flower?.air_humidity?.max } : null} iconName="drop" value={sensor?.humidity ?? null} carne=" %" />
+                        <InfoCard cardTitle="Humadity of soil" recommendedValue={flower ? {min: flower?.soil_humidity?.min , max: flower?.soil_humidity?.max }: null}  iconName="drop" value={sensor?.soil != null ? translateToPercentage(Number(sensor?.soil), 280, 600) : null} carne=" %"/>
+                        <InfoCard cardTitle="Tempature" recommendedValue={flower ? {min: flower?.air_temperature?.min , max: flower?.air_temperature?.max} : null}  iconName="thermometer" value={sensor?.temp ?? null} carne=" °C"/>
+                        <InfoCard cardTitle="Light" recommendedValue={flower ? {only_one: flower?.light} : null} iconName="lightbulb" value={sensor?.light ?? null} carne=" lux"/>
                     </View>
                     <View style={{display: "flex", gap: 10}}>
                         {graphs &&
@@ -194,7 +199,7 @@ export default function Flowerpage() {
                             <Text style={{color: theme.text}}>After pushing this button, sensor will delete from user database and reset itself</Text>
                             <Text style={[globalStyles.bald, {color: theme.text}]}>THIS CANNOT BE REVERSED!</Text>
                         </View>
-                        <TouchableOpacity style={[styles.button, {flex: 0}]}>
+                        <TouchableOpacity onPress={fetchSensorReset} style={[styles.button, {flex: 0}]}>
                             <Text style={{color: theme.text}}>RESET SENSOR</Text>
                         </TouchableOpacity>
                     </View>

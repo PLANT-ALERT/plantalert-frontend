@@ -2,18 +2,26 @@ import React, { useEffect, useRef } from "react";
 import { View, Animated, StyleSheet } from "react-native";
 import { useTheme } from "@/components/ThemeProvider"; // Replace with your actual theme hook
 
-const GradiatedProgressBar = ({ progress = 0, min = 20, max = 80 }) => {
+const GradiatedProgressBar = ({ progress = 0, min = 0, max = 100 }) => {
     const { theme } = useTheme();
 
     const progressAnim = useRef(new Animated.Value(0)).current;
 
-    const clampedProgress = Math.max(0, Math.min(progress, 100));
-    const progressRatio = (clampedProgress / 100) * 100;
+    const effectiveMin = Math.min(min, max);
+    const effectiveMax = Math.max(min, max);
+
+    // Clamp progress within min-max
+    const clampedProgress = Math.max(effectiveMin, Math.min(progress, effectiveMax));
+
+    // Normalize progress within the given range
+    const normalizedProgress = ((clampedProgress - effectiveMin) / (effectiveMax - effectiveMin)) * 100;
+
+
 
     // Animate progress
     useEffect(() => {
         Animated.timing(progressAnim, {
-            toValue: progressRatio,
+            toValue: normalizedProgress,
             duration: 500,
             useNativeDriver: false,
         }).start();
