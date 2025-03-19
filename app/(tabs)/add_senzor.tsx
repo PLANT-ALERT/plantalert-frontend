@@ -49,6 +49,7 @@ export default function AddSenzor() {
         if (mac && token && name) {
             await registerSensor(mac, token, name)
         }
+        setSavedWifi(false)
         router.push("/");
     }
 
@@ -105,7 +106,6 @@ export default function AddSenzor() {
                 <View style={{position: "absolute", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)"}}>
                     <View style={{backgroundColor: theme.background, borderWidth: 5, borderColor: theme.border, padding: 15, borderRadius: 15, display: "flex", maxWidth: "65%", gap: 20}}>
                         <Text>Successful wifi setup</Text>
-                        {/*cz verze: nyní můžete zahájit připojení k WIFI, pokud připojení selže, prosím nastavte wifi znova v části Lost Sensor v nastavení vašeho sensoru*/}
                         <Text>you can now start the WIFI connection, if the connection fails, please set up the wifi again in the Lost Sensor section of your sensor settings</Text>
                         <Text>Before, please connect back to internet</Text>
                         <Button title="Connect" onPress={handleConnection} />
